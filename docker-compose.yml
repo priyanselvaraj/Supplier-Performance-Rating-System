@@ -1,0 +1,94 @@
+version: '3.8'
+
+services:
+  # ==========================================
+  # Database Service (MySQL 8.0)
+  # ==========================================
+  mysql:
+    image: mysql:8.0
+    container_name: sprs-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-spr_system_db}
+      MYSQL_USER: ${DB_USERNAME:-spruser}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-sprpassword}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpassword}
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - spr-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD:-rootpassword}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ==========================================
+  # Backend API Service (Spring Boot 3.3.3)
+  # ==========================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sprs-backend
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-spr_system_db}
+      DB_USERNAME: ${DB_USERNAME:-spruser}
+      DB_PASSWORD: ${DB_PASSWORD:-sprpassword}
+      JWT_SECRET: ${JWT_SECRET:-404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+      JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-86400000}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:5173,http://localhost:80,http://localhost,http://127.0.0.1:5173}
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    networks:
+      - spr-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  # ==========================================
+  # Frontend Web Service (React + Nginx)
+  # ==========================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: sprs-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "${FRONTEND_PORT:-5173}:80"
+      - "80:80"
+    networks:
+      - spr-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
+      interval: 15s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+# ==========================================
+# Network and Persistent Storage Volumes
+# ==========================================
+networks:
+  spr-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+    driver: local

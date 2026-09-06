@@ -1,0 +1,86 @@
+server:
+  port: ${PORT:8080}
+  servlet:
+    context-path: /
+  compression:
+    enabled: true
+    mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json,application/xml
+    min-response-size: 2048
+
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: ${DATABASE_URL:jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:spr_system_db}?createDatabaseIfNotExist=false&useSSL=${DB_USE_SSL:false}&allowPublicKeyRetrieval=${DB_ALLOW_PUBLIC_KEY_RETRIEVAL:true}&serverTimezone=UTC&characterEncoding=UTF-8}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      pool-name: SPRS-Prod-HikariCP
+      maximum-pool-size: ${DB_MAX_POOL_SIZE:20}
+      minimum-idle: ${DB_MIN_IDLE:5}
+      idle-timeout: 300000
+      max-lifetime: 1200000
+      connection-timeout: 20000
+      leak-detection-threshold: 60000
+  jpa:
+    hibernate:
+      ddl-auto: ${HIBERNATE_DDL_AUTO:update}
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        dialect: org.hibernate.dialect.MySQLDialect
+        jdbc:
+          batch_size: 25
+        order_inserts: true
+        order_updates: true
+    open-in-view: false
+
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration-ms: ${JWT_EXPIRATION_MS:86400000} # 24 hours
+  cors:
+    allowed-origins: ${ALLOWED_ORIGINS:http://localhost,http://localhost:80,http://localhost:5173,http://127.0.0.1:5173}
+  seed:
+    enabled: ${APP_SEED_ENABLED:false}
+  ai:
+    minimum-history: ${AI_MINIMUM_HISTORY:3}
+    high-risk-threshold: ${AI_HIGH_RISK_THRESHOLD:50.0}
+    critical-risk-threshold: ${AI_CRITICAL_RISK_THRESHOLD:75.0}
+    decline-threshold: ${AI_DECLINE_THRESHOLD:5.0}
+    low-score-threshold: ${AI_LOW_SCORE_THRESHOLD:70.0}
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+    enabled: ${ENABLE_SWAGGER:true}
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: ${ENABLE_SWAGGER:true}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when_authorized
+      probes:
+        enabled: true
+  info:
+    env:
+      enabled: true
+
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} [%X{traceId:-},%X{spanId:-}] - %msg%n"
+  level:
+    root: ${LOG_LEVEL_ROOT:INFO}
+    com.supplier.sprsystem: ${LOG_LEVEL_APP:INFO}
+    org.springframework.security: WARN
+    org.springframework.web: WARN
+    org.hibernate: WARN

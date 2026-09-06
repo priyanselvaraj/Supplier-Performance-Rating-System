@@ -1,0 +1,90 @@
+name: SPRS Enterprise CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  # ==========================================
+  # JOB 1: Backend Verification & Testing
+  # ==========================================
+  backend-ci:
+    name: Backend Build & Test (Java 17 / Maven)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17 (Eclipse Temurin)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Maven Compile Backend
+        working-directory: ./backend
+        run: mvn clean compile --batch-mode
+
+      - name: Run JUnit & Spring Boot Tests
+        working-directory: ./backend
+        run: mvn test --batch-mode
+
+      - name: Upload Test Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-reports
+          path: backend/target/surefire-reports/
+
+  # ==========================================
+  # JOB 2: Frontend Verification & Build
+  # ==========================================
+  frontend-ci:
+    name: Frontend Build & Test (Node 20 / Vite / React)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Dependencies
+        working-directory: ./frontend
+        run: npm install
+
+      - name: Run Vitest Unit & Integration Tests
+        working-directory: ./frontend
+        run: npm run test
+
+      - name: Build Production Web Bundle
+        working-directory: ./frontend
+        run: npm run build
+
+      - name: Upload Production Dist Bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist-bundle
+          path: frontend/dist/
+
+  # ==========================================
+  # JOB 3: Container Build Validation
+  # ==========================================
+  docker-validation:
+    name: Production Container Build Validation
+    needs: [backend-ci, frontend-ci]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker Stack (Validate Dockerfiles)
+        run: docker compose build

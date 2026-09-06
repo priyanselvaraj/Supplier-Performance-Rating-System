@@ -1,0 +1,12 @@
+package com.supplier.sprsystem.model.entity;
+
+public enum WebhookEventType {
+    SUPPLIER_CREATED,
+    SUPPLIER_UPDATED,
+    SUPPLIER_RATING_UPDATED,
+    EVALUATION_COMPLETED,
+    HIGH_RISK_SUPPLIER_DETECTED,
+    IMPROVEMENT_ACTION_CREATED,
+    WORKFLOW_COMPLETED,
+    TEST_PING
+}

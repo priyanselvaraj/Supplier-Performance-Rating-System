@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="30 seconds">
+
+    <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter" />
+    <conversionRule conversionWord="wex" converterClass="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter" />
+    <conversionRule conversionWord="wEx" converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter" />
+
+    <!-- Standard Console Log Pattern with Request Trace ID -->
+    <property name="CONSOLE_LOG_PATTERN"
+              value="${CONSOLE_LOG_PATTERN:-%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}"/>
+
+    <!-- Standard Production Pattern -->
+    <property name="PROD_LOG_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} [traceId=%X{traceId:-}, spanId=%X{spanId:-}] - %msg%n"/>
+
+    <!-- Console Appender -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- Production Appender -->
+    <appender name="PROD_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${PROD_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- Development Profile Configuration -->
+    <springProfile name="dev">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE" />
+        </root>
+        <logger name="com.supplier.sprsystem" level="DEBUG" />
+    </springProfile>
+
+    <!-- Production Profile Configuration -->
+    <springProfile name="prod">
+        <root level="${LOG_LEVEL_ROOT:-INFO}">
+            <appender-ref ref="PROD_CONSOLE" />
+        </root>
+        <logger name="com.supplier.sprsystem" level="${LOG_LEVEL_APP:-INFO}" />
+        <logger name="org.springframework.security" level="WARN" />
+        <logger name="org.hibernate" level="WARN" />
+        <logger name="com.zaxxer.hikari" level="WARN" />
+    </springProfile>
+
+    <!-- Default Fallback -->
+    <springProfile name="!dev &amp; !prod">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE" />
+        </root>
+    </springProfile>
+
+</configuration>
