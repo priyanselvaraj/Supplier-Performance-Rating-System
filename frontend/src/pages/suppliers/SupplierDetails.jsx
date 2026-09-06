@@ -43,7 +43,7 @@ export const SupplierDetails = () => {
   const [improvementActions, setImprovementActions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [toast, setToast] = useState(null);
+  const [toast, setToast] = useState({ message: '', type: 'success' });
 
   const loadData = async () => {
     setLoading(true);
@@ -156,7 +156,7 @@ export const SupplierDetails = () => {
 
   return (
     <div className="space-y-6">
-      {toast.message && (
+      {toast?.message && (
         <Toast
           message={toast.message}
           type={toast.type}

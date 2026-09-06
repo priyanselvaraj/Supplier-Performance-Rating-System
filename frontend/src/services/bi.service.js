@@ -75,7 +75,7 @@ export const biService = {
 
   // Executive Dashboard
   getExecutiveDashboard: async () => {
-    const response = await api.get('/bi/executive/dashboard');
+    const response = await api.get('/bi/executive');
     return response.data;
   },
 

@@ -187,7 +187,7 @@ public class BusinessIntelligenceController {
         return ResponseEntity.ok(ApiResponse.success("Saved report deleted successfully", null));
     }
 
-    @GetMapping("/executive")
+    @GetMapping({"/executive", "/executive/dashboard"})
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @Operation(summary = "Get high-level executive C-suite dashboard metrics")
     public ResponseEntity<ApiResponse<ExecutiveDashboardResponse>> getExecutiveDashboard() {
