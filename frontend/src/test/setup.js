@@ -61,3 +61,7 @@ global.IntersectionObserver = class IntersectionObserver {
   unobserve() {}
   disconnect() {}
 };
+
+// Mock scrollIntoView
+window.HTMLElement.prototype.scrollIntoView = () => {};
+

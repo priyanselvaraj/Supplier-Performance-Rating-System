@@ -21,6 +21,8 @@ const RatingsPage = lazy(() => import('./pages/ratings/RatingsPage').then(m => (
 const SupplierRatingDetails = lazy(() => import('./pages/ratings/SupplierRatingDetails').then(m => ({ default: m.SupplierRatingDetails || m.default })));
 const AnalyticsPage = lazy(() => import('./pages/analytics/AnalyticsPage').then(m => ({ default: m.AnalyticsPage || m.default })));
 const AiIntelligencePage = lazy(() => import('./pages/ai/AiIntelligencePage').then(m => ({ default: m.AiIntelligencePage || m.default })));
+const AiCopilotPage = lazy(() => import('./pages/ai/AiCopilotPage').then(m => ({ default: m.AiCopilotPage || m.default })));
+const ExecutiveInsightsPage = lazy(() => import('./pages/ai/ExecutiveInsightsPage').then(m => ({ default: m.ExecutiveInsightsPage || m.default })));
 const NotificationCenter = lazy(() => import('./pages/notifications/NotificationCenter').then(m => ({ default: m.NotificationCenter || m.default })));
 const ImprovementActionsPage = lazy(() => import('./pages/improvement/ImprovementActionsPage').then(m => ({ default: m.ImprovementActionsPage || m.default })));
 const MonitoringDashboard = lazy(() => import('./pages/monitoring/MonitoringDashboard').then(m => ({ default: m.MonitoringDashboard || m.default })));
@@ -127,6 +129,8 @@ export function App() {
             <Route path="/ratings/supplier/:supplierId" element={<SupplierRatingDetails />} />
             <Route path="/improvement-actions" element={<ImprovementActionsPage />} />
             <Route path="/ai-intelligence" element={<AiIntelligencePage />} />
+            <Route path="/ai-copilot" element={<AiCopilotPage />} />
+            <Route path="/executive-insights" element={<ExecutiveInsightsPage />} />
             <Route path="/notifications" element={<NotificationCenter />} />
             <Route path="/analytics" element={<AnalyticsPage />} />
             <Route path="/reports" element={<ReportsPage />} />

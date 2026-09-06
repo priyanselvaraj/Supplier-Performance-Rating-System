@@ -30,7 +30,11 @@ import {
   Lightbulb,
   Info,
   Wrench,
-  Plus
+  Plus,
+  Check,
+  X,
+  PlusCircle,
+  ShieldCheck
 } from 'lucide-react';
 
 export const SupplierDetails = () => {
@@ -78,6 +82,29 @@ export const SupplierDetails = () => {
   useEffect(() => {
     loadData();
   }, [id]);
+
+  const handleDecision = async (rec, status) => {
+    try {
+      await aiService.submitRecommendationDecision(1, {
+        recommendationRef: rec.id,
+        status: status,
+        decisionNotes: `Human decision: ${status}`,
+        actionTitle: status === 'ACTION_CREATED' ? `Remediate ${rec.criterionName}: ${rec.title || 'CAP'}` : null,
+        actionDescription: status === 'ACTION_CREATED' ? rec.actionableSteps : null,
+        targetCompletionDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+      });
+      setToast({
+        message: status === 'ACTION_CREATED'
+          ? 'Corrective Action Plan (CAP) successfully initiated from recommendation!'
+          : `Recommendation marked as ${status.toLowerCase()}.`,
+        type: 'success'
+      });
+      loadData();
+    } catch (err) {
+      console.error(err);
+      setToast({ message: 'Failed to record recommendation decision.', type: 'error' });
+    }
+  };
 
   if (loading) {
     return (
@@ -395,25 +422,53 @@ export const SupplierDetails = () => {
               </div>
             </Card>
 
-            {/* Recommendations & Remediation Card */}
-            <Card title="Prescriptive Recommendations">
-              <div className="space-y-2.5 max-h-60 overflow-y-auto pr-1">
+            {/* Recommendations & Remediation Card with Human Decision Controls */}
+            <Card title="Prescriptive Recommendations" subtitle="Human-controlled decision actions">
+              <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
                 {(aiInsights.recommendations || []).map((rec) => (
-                  <div key={rec.id} className="p-2.5 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 text-xs">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-bold text-gray-800 dark:text-white">{rec.criterionName}</span>
+                  <div key={rec.id} className="p-3 bg-slate-50 dark:bg-gray-800 rounded-xl border border-slate-200/80 dark:border-gray-700 text-xs space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-slate-800 dark:text-white">{rec.criterionName}</span>
                       <Badge variant={rec.priority === 'CRITICAL' ? 'danger' : rec.priority === 'HIGH' ? 'warning' : 'info'} size="sm">
                         {rec.priority}
                       </Badge>
                     </div>
-                    <p className="text-gray-600 dark:text-gray-400 mb-1.5">{rec.recommendation}</p>
-                    <div className="text-indigo-600 dark:text-indigo-400 font-medium">
-                      Action: {rec.actionableSteps}
+                    <p className="text-slate-600 dark:text-gray-300 leading-relaxed">{rec.recommendation}</p>
+                    <div className="text-indigo-600 dark:text-indigo-400 font-medium bg-indigo-50/50 dark:bg-indigo-950/30 p-2 rounded-lg border border-indigo-100 dark:border-indigo-900/40">
+                      <strong>Suggested Action:</strong> {rec.actionableSteps}
+                    </div>
+
+                    {/* Human Action Decision Buttons */}
+                    <div className="pt-2 flex flex-wrap items-center justify-end gap-1.5 border-t border-slate-200/60 dark:border-gray-700">
+                      <button
+                        type="button"
+                        onClick={() => handleDecision(rec, 'ACCEPTED')}
+                        className="text-[10px] font-bold px-2 py-1 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 flex items-center gap-1 transition-colors cursor-pointer"
+                        title="Accept recommendation without creating action plan"
+                      >
+                        <Check className="h-3 w-3" /> Accept
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDecision(rec, 'DISMISSED')}
+                        className="text-[10px] font-bold px-2 py-1 rounded bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200 flex items-center gap-1 transition-colors cursor-pointer"
+                        title="Dismiss recommendation"
+                      >
+                        <X className="h-3 w-3" /> Dismiss
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDecision(rec, 'ACTION_CREATED')}
+                        className="text-[10px] font-bold px-2 py-1 rounded bg-blue-600 text-white hover:bg-blue-700 flex items-center gap-1 transition-colors cursor-pointer shadow-2xs"
+                        title="Initiate official Corrective Action Plan (CAP)"
+                      >
+                        <PlusCircle className="h-3 w-3" /> Create CAP Action
+                      </button>
                     </div>
                   </div>
                 ))}
                 {(!aiInsights.recommendations || aiInsights.recommendations.length === 0) && (
-                  <p className="text-xs text-gray-500 py-4 text-center">No current criteria remediation required.</p>
+                  <p className="text-xs text-slate-500 py-4 text-center">No current criteria remediation required.</p>
                 )}
               </div>
             </Card>

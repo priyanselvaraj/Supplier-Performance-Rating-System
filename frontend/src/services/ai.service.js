@@ -39,5 +39,46 @@ export const aiService = {
   getSupplierInsights: async (supplierId) => {
     const response = await api.get(`/ai/suppliers/${supplierId}/insights`);
     return response.data;
+  },
+
+  // Phase 18: AI Copilot & Decision Support Services
+  queryCopilot: async (data) => {
+    const response = await api.post('/ai/copilot/query', data);
+    return response.data;
+  },
+
+  getCopilotHistory: async () => {
+    const response = await api.get('/ai/copilot/history');
+    return response.data;
+  },
+
+  submitFeedback: async (historyId, data) => {
+    const response = await api.post(`/ai/copilot/feedback/${historyId}`, data);
+    return response.data;
+  },
+
+  compareSuppliersAi: async (supplierIds) => {
+    const response = await api.post('/ai/suppliers/compare', { supplierIds });
+    return response.data;
+  },
+
+  getExecutiveAiInsights: async () => {
+    const response = await api.get('/ai/executive-insights');
+    return response.data;
+  },
+
+  getWorkflowRecommendations: async () => {
+    const response = await api.get('/ai/workflows/recommendations');
+    return response.data;
+  },
+
+  submitRecommendationDecision: async (recommendationId, data) => {
+    const response = await api.post(`/ai/recommendations/${recommendationId}/decision`, data);
+    return response.data;
+  },
+
+  getSupplierRecommendationDecisions: async (supplierId) => {
+    const response = await api.get(`/ai/suppliers/${supplierId}/decisions`);
+    return response.data;
   }
 };

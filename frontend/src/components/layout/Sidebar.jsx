@@ -25,7 +25,8 @@ import {
   Layers,
   PieChart,
   Target,
-  Database
+  Database,
+  Bot
 } from 'lucide-react';
 
 export const Sidebar = ({ isOpen, onClose }) => {
@@ -33,6 +34,8 @@ export const Sidebar = ({ isOpen, onClose }) => {
 
   const navItems = [
     { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { to: '/ai-copilot', label: 'AI Copilot', icon: Bot },
+    { to: '/executive-insights', label: 'Executive AI Insights', icon: Sparkles },
     { to: '/executive-dashboard', label: 'Executive Overview', icon: PieChart },
     { to: '/business-intelligence', label: 'Business Intelligence', icon: Layers },
     { to: '/workflows', label: 'Workflows', icon: GitPullRequest },

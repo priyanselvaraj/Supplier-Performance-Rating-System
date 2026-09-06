@@ -272,3 +272,19 @@ This document provides a summary of all REST API endpoints implemented in the **
 | `GET` | `/api/v1/admin/integrations/sync/history` | **ROLE_ADMIN** | List supplier synchronization run histories. |
 | `GET` | `/api/v1/admin/integrations/sync/history/{id}` | **ROLE_ADMIN** | Get detailed record of a specific synchronization run. |
 
+---
+
+## 🤖 16. AI Copilot, Prescriptive Intelligence & Decision Support APIs (Phase 18)
+
+| Method | Endpoint | Access Role | Description |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/v1/ai/copilot/query` | **Authenticated** | Conversational natural language queries with role-based data isolation, metric citations, and suggested actions. |
+| `GET` | `/api/v1/ai/copilot/history` | **Authenticated** | Returns recent copilot query history and response citations for the authenticated user. |
+| `POST` | `/api/v1/ai/copilot/feedback/{historyId}` | **Authenticated** | Logs user rating (thumbs up/down) and qualitative feedback on an AI response. |
+| `POST` | `/api/v1/ai/suppliers/compare` | **ADMIN, MANAGER** | Generates side-by-side multi-supplier comparative AI analysis, strengths, weaknesses, and recommendation. |
+| `GET` | `/api/v1/ai/insights/executive` | **ADMIN, MANAGER** | Generates synthesized C-suite executive briefing with portfolio KPIs, risk distributions, and strategic recommendations. |
+| `GET` | `/api/v1/ai/workflow/recommendations` | **ADMIN, MANAGER** | Evaluates active approval tasks and escalations to identify operational bottlenecks and actionable suggestions. |
+| `POST` | `/api/v1/ai/recommendations/decision` | **ADMIN, MANAGER** | Human-in-the-Loop decision capture (`ACCEPTED`, `DISMISSED`, `ACTION_CREATED`) with optional automated CAP creation. |
+| `GET` | `/api/v1/ai/suppliers/{supplierId}/decisions` | **Authenticated** | Retrieves historical audit trail of human decisions on AI recommendations for a specific supplier. |
+
+

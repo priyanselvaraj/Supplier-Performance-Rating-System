@@ -6,7 +6,30 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
-## [1.7.0] - 2026-09-06 (FINAL RELEASE)
+## [1.8.0] - 2026-09-06
+
+### Added (Phase 18 — Intelligent Automation, AI Copilot and Advanced Decision Support)
+- **Supplier Management AI Copilot (`/ai-copilot`)**:
+  - Conversational natural language query engine with role-based data isolation (Suppliers restricted to their own scorecard; Admins/Managers access full portfolio).
+  - Grounded responses with dynamic metric citations (`evaluations_count`, `current_score`, `risk_score`, `trend`) and recommended action links.
+  - Interaction history auditing and user feedback rating (`AiInteractionHistory`).
+- **Multi-Supplier Comparative AI Analysis**:
+  - Side-by-side performance matrix synthesis comparing scorecards, risk tiers, and category standing (`POST /api/v1/ai/suppliers/compare`).
+- **Executive AI Insights Briefing (`/executive-insights`)**:
+  - C-suite synthesis summarizing portfolio health, risk distributions, critical supplier alerts, and strategic procurement recommendations.
+- **Smart Workflow & Bottleneck Assistance**:
+  - Proactive evaluation of pending approvals and overdue escalations with actionable remediation suggestions.
+- **Human-in-the-Loop Recommendation Governance**:
+  - Embedded prescriptive recommendations on `SupplierDetails.jsx` enabling managers to **Accept**, **Dismiss**, or **Create CAP Action**.
+  - Persists human audit trail via `AiRecommendationDecision` and optionally creates actionable `SupplierImprovementAction` records.
+- **Verification**:
+  - 269 backend unit and integration tests passing (100% pass rate).
+  - 41 frontend vitest component tests passing (100% pass rate).
+  - Frontend production build generated with 0 errors.
+
+---
+
+## [1.7.0] - 2026-09-06
 
 ### Added (Phase 17 — Cloud Deployment, Scalability and Disaster Recovery)
 - **Production Configuration & Security Hardening**:

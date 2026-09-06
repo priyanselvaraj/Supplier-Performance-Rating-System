@@ -35,7 +35,7 @@ The **Supplier Performance Rating System (SPRS)** is a full-stack, enterprise-gr
 - **Security & Authorization**: Spring Security 6, JJWT (0.12.6), BCrypt, API Key Filter, Token Bucket Rate Limiting
 - **API Documentation**: SpringDoc OpenAPI 3 / Swagger UI (2.6.0)
 - **Export Engines**: OpenPDF (PDF generation), Apache POI 5.3 (Excel .xlsx), RFC-4180 CSV
-- **Testing**: JUnit 5, Mockito, Spring Boot MockMvc, H2 In-Memory DB (259 automated tests)
+- **Testing**: JUnit 5, Mockito, Spring Boot MockMvc, H2 In-Memory DB (269 automated tests)
 
 ### Frontend Architecture
 - **Library**: React 18 SPA (with TypeScript & JSX)
@@ -45,7 +45,7 @@ The **Supplier Performance Rating System (SPRS)** is a full-stack, enterprise-gr
 - **Data Visualization**: Chart.js & Recharts
 - **Icons**: Lucide React
 - **HTTP Client**: Axios (with Bearer Token Interceptors & auto-retry)
-- **Testing**: Vitest & React Testing Library (38 automated component tests)
+- **Testing**: Vitest & React Testing Library (41 automated component tests)
 
 ### Infrastructure & Operations
 - **Production Database**: MySQL 8.0 (with HikariCP connection pool tuning)
@@ -69,6 +69,7 @@ flowchart TD
         ScoringEngine["Multi-Criteria Weighted Scoring Engine"]
         WorkflowEngine["Multi-Step Approval & Escalation Engine"]
         AIEngine["AI Trend Regression & Anomaly Predictor"]
+        AICopilot["Natural Language AI Copilot & Decision Support"]
         BIEngine["BI & Custom KPI Formula Builder"]
         IntegrationEngine["External REST API & Webhook Dispatcher"]
     end
@@ -80,7 +81,7 @@ flowchart TD
 
 ---
 
-## 4. Key Modules & Roadmap Completion (Phases 1–17)
+## 4. Key Modules & Roadmap Completion (Phases 1–18)
 
 | Phase | Capability | Description |
 | :--- | :--- | :--- |
@@ -94,6 +95,8 @@ flowchart TD
 | **Phase 15** | **Business Intelligence & KPI Builder** | Dynamic custom KPI formula builder, multi-dimensional BI reports, and executive dashboards. |
 | **Phase 16** | **Enterprise Integrations** | Secure B2B external REST APIs (`/api/v1/external/**`), API key management, rate limiting, and HMAC-signed webhooks. |
 | **Phase 17** | **Cloud Deployment & DR** | Multi-stage Dockerfiles, production Compose stack, backup/restore scripts, CI/CD pipeline, and Disaster Recovery plan. |
+| **Phase 18** | **AI Copilot & Decision Support** | Natural language conversational analytics, RBAC data isolation, multi-supplier AI comparison, human-in-the-loop governance, and C-suite briefings. |
+
 
 ---
 
