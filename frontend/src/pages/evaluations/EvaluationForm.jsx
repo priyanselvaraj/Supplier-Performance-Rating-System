@@ -294,70 +294,112 @@ export const EvaluationForm = () => {
               const maxVal = crit.maxScore || 100;
               const weightVal = crit.weight || 0;
               const weightedContribution = Math.round(((currentVal / maxVal) * weightVal) * 100) / 100;
+              const percentage = Math.round((currentVal / maxVal) * 100);
 
               return (
                 <div
                   key={crit.id}
-                  className="p-4 bg-slate-50/75 rounded-xl border border-slate-200/80 space-y-3"
+                  className="p-4 sm:p-5 bg-slate-50/80 rounded-xl border border-slate-200/90 space-y-3.5 hover:border-slate-300 transition-colors"
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
                         <span className="h-6 w-6 rounded-full bg-blue-100 text-blue-700 font-bold text-xs flex items-center justify-center">
                           {idx + 1}
                         </span>
                         <h4 className="font-semibold text-slate-800 text-sm">{crit.name}</h4>
-                        <span className="text-xs bg-slate-200 text-slate-700 font-semibold px-2 py-0.5 rounded">
+                        <span className="text-xs bg-blue-50 text-blue-700 border border-blue-200 font-semibold px-2 py-0.5 rounded">
                           Weight: {crit.weight}%
                         </span>
                       </div>
                       {crit.description && (
-                        <p className="text-xs text-slate-500 mt-1 pl-8">{crit.description}</p>
+                        <p className="text-xs text-slate-500 mt-1 sm:pl-8">{crit.description}</p>
                       )}
                     </div>
 
-                    <div className="text-right sm:pl-4">
-                      <span className="text-xs text-slate-500 block">Weighted Contribution</span>
-                      <span className="text-base font-bold text-blue-600">
+                    <div className="text-left sm:text-right sm:pl-4 flex sm:flex-col justify-between items-center sm:items-end">
+                      <span className="text-xs text-slate-500 block">Weighted Points</span>
+                      <span className="text-sm sm:text-base font-bold text-blue-600 bg-blue-50/60 px-2 py-0.5 rounded">
                         {weightedContribution} / {weightVal} pts
                       </span>
                     </div>
                   </div>
 
-                  {/* Slider & Number Input */}
-                  <div className="pl-0 sm:pl-8 grid grid-cols-1 sm:grid-cols-4 gap-4 items-center">
-                    <div className="sm:col-span-3 flex items-center gap-3">
-                      <input
-                        type="range"
-                        min="0"
-                        max={maxVal}
-                        step="1"
-                        value={currentVal}
-                        onChange={(e) => handleScoreChange(crit.id, e.target.value)}
-                        className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
-                      />
+                  {/* Slider & Controls */}
+                  <div className="sm:pl-8 space-y-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                      {/* Interactive Slider */}
+                      <div className="flex-1 flex items-center gap-2">
+                        <span className="text-xs font-semibold text-slate-400 w-4">0</span>
+                        <div className="relative flex-1 flex items-center">
+                          <input
+                            type="range"
+                            min="0"
+                            max={maxVal}
+                            step="1"
+                            value={currentVal}
+                            onChange={(e) => handleScoreChange(crit.id, e.target.value)}
+                            style={{
+                              background: `linear-gradient(to right, #2563eb 0%, #2563eb ${(currentVal / maxVal) * 100}%, #cbd5e1 ${(currentVal / maxVal) * 100}%, #cbd5e1 100%)`,
+                            }}
+                            className="w-full h-2.5 rounded-lg appearance-none cursor-pointer accent-blue-600 focus:outline-none"
+                          />
+                        </div>
+                        <span className="text-xs font-semibold text-slate-400">{maxVal}</span>
+                      </div>
+
+                      {/* Numeric Input & Percentage Badge */}
+                      <div className="flex items-center gap-2 self-end sm:self-auto">
+                        <div className="flex items-center bg-white border border-slate-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500">
+                          <input
+                            type="number"
+                            min="0"
+                            max={maxVal}
+                            value={currentVal}
+                            onChange={(e) => handleScoreChange(crit.id, e.target.value)}
+                            className="w-16 px-2 py-1.5 text-sm font-bold text-center text-slate-800 focus:outline-none"
+                          />
+                          <span className="text-xs font-medium text-slate-400 pr-2">/ {maxVal}</span>
+                        </div>
+                        <span className="text-xs font-semibold px-2 py-1 bg-slate-200/80 text-slate-700 rounded-md min-w-[42px] text-center">
+                          {percentage}%
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="number"
-                        min="0"
-                        max={maxVal}
-                        value={currentVal}
-                        onChange={(e) => handleScoreChange(crit.id, e.target.value)}
-                        className="w-20 px-2.5 py-1.5 text-sm font-semibold text-center bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                      <span className="text-xs text-slate-500 font-medium">/ {maxVal} max</span>
+
+                    {/* Quick Preset Buttons */}
+                    <div className="flex items-center gap-1.5 pt-1">
+                      <span className="text-[11px] text-slate-400 font-medium mr-1">Quick Presets:</span>
+                      {[
+                        { label: '50%', val: Math.round(maxVal * 0.5) },
+                        { label: '70%', val: Math.round(maxVal * 0.7) },
+                        { label: '85%', val: Math.round(maxVal * 0.85) },
+                        { label: '100%', val: maxVal },
+                      ].map((preset) => (
+                        <button
+                          key={preset.label}
+                          type="button"
+                          onClick={() => handleScoreChange(crit.id, preset.val)}
+                          className={`text-[10px] font-semibold px-2 py-0.5 rounded border transition-colors ${
+                            currentVal === preset.val
+                              ? 'bg-blue-600 text-white border-blue-600'
+                              : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100 hover:border-slate-300'
+                          }`}
+                        >
+                          {preset.label}
+                        </button>
+                      ))}
                     </div>
                   </div>
 
                   {/* Remarks input */}
-                  <div className="pl-0 sm:pl-8">
+                  <div className="sm:pl-8">
                     <input
                       type="text"
                       placeholder="Add specific remarks / evidence for this score (optional)..."
                       value={scores[crit.id]?.remarks || ''}
                       onChange={(e) => handleRemarksChange(crit.id, e.target.value)}
-                      className="w-full px-3 py-1.5 text-xs bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-slate-400"
                     />
                   </div>
                 </div>
