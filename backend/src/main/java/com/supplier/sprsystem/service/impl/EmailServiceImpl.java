@@ -161,11 +161,13 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendLoginAlertEmail(User user, String ipAddress, String userAgent, LocalDateTime loginTime) {
-        if (user == null || user.getEmail() == null) return;
+        if (user == null || user.getEmail() == null || user.getEmail().trim().isEmpty()) return;
 
-        String formattedTime = (loginTime != null ? loginTime : LocalDateTime.now()).format(DATE_FORMATTER);
-        String subject = "🛡️ Security Alert: New Login to Your SPRS Account";
-        String fullName = user.getFullName() != null ? user.getFullName() : user.getUsername();
+        LocalDateTime timestamp = (loginTime != null) ? loginTime : LocalDateTime.now();
+        String loginDate = timestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        String loginTimeStr = timestamp.format(DateTimeFormatter.ofPattern("HH:mm:ss"));
+        String subject = "SPRS Login Notification";
+        String fullName = (user.getFullName() != null && !user.getFullName().trim().isEmpty()) ? user.getFullName() : user.getUsername();
         String safeIp = (ipAddress != null && !ipAddress.trim().isEmpty()) ? ipAddress.trim() : "Unknown IP";
         String safeAgent = (userAgent != null && !userAgent.trim().isEmpty()) ? userAgent.trim() : "Web Browser / API Client";
 
@@ -178,56 +180,66 @@ public class EmailServiceImpl implements EmailService {
                         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; color: #1e293b; margin: 0; padding: 24px; }
                         .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
                         .header { background: linear-gradient(135deg, #0f172a, #1e293b); color: #ffffff; padding: 28px 24px; text-align: center; }
-                        .header h1 { margin: 0; font-size: 20px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; }
+                        .header h1 { margin: 0; font-size: 20px; font-weight: 700; }
                         .content { padding: 32px 24px; line-height: 1.6; }
                         .alert-box { background-color: #eff6ff; border-left: 4px solid #3b82f6; border-radius: 4px; padding: 16px; margin: 20px 0; }
                         .card-item { margin-bottom: 8px; font-size: 14px; }
                         .card-item:last-child { margin-bottom: 0; }
+                        .warning-box { background-color: #fef2f2; border: 1px solid #fee2e2; border-radius: 6px; padding: 12px 16px; color: #991b1b; font-size: 13px; margin-top: 20px; }
                         .footer { padding: 20px 24px; text-align: center; font-size: 12px; color: #64748b; border-top: 1px solid #f1f5f9; background: #fafafa; }
                     </style>
                 </head>
                 <body>
                     <div class="container">
                         <div class="header">
-                            <h1>🛡️ SPRS Security Notification</h1>
+                            <h1>Supplier Performance Rating System</h1>
                         </div>
                         <div class="content">
                             <h2>Hello, %s</h2>
-                            <p>We detected a new successful sign-in to your <strong>Supplier Performance Rating System</strong> account.</p>
+                            <p>Your <strong>Supplier Performance Rating System</strong> account was successfully logged in.</p>
                             
                             <div class="alert-box">
+                                <div class="card-item"><strong>Login Date:</strong> %s</div>
+                                <div class="card-item"><strong>Login Time:</strong> %s</div>
+                                <div class="card-item"><strong>Application:</strong> Supplier Performance Rating System</div>
                                 <div class="card-item"><strong>Account:</strong> %s (%s)</div>
-                                <div class="card-item"><strong>Timestamp:</strong> %s</div>
                                 <div class="card-item"><strong>IP Address:</strong> %s</div>
-                                <div class="card-item"><strong>Client / Device:</strong> %s</div>
+                                <div class="card-item"><strong>Device / Browser:</strong> %s</div>
                             </div>
 
-                            <p style="font-size: 14px;"><strong>Was this you?</strong></p>
-                            <p style="font-size: 13px; color: #475569;">
-                                If you initiated this login, no action is needed. If you did not log in, someone else may have accessed your account. Please change your password immediately and contact system security.
+                            <div class="warning-box">
+                                <strong>Security Warning:</strong> If you did not perform this login, please contact the administrator.
+                            </div>
+
+                            <p style="margin-top: 24px; line-height: 1.5;">
+                                Regards,<br>
+                                <strong>SPRS Team</strong>
                             </p>
                         </div>
                         <div class="footer">
-                            &copy; %d Supplier Performance Rating System &bull; Automated Security Alert
+                            &copy; %d Supplier Performance Rating System &bull; All rights reserved.
                         </div>
                     </div>
                 </body>
                 </html>
                 """.formatted(
                 fullName,
+                loginDate,
+                loginTimeStr,
                 user.getUsername(),
                 user.getEmail(),
-                formattedTime,
                 safeIp,
                 safeAgent,
                 LocalDateTime.now().getYear()
         );
 
-        String plainText = "SPRS Security Alert: New login detected for " + user.getUsername() + ".\n"
-                + "Time: " + formattedTime + "\n"
-                + "IP: " + safeIp + "\n"
-                + "Client: " + safeAgent + "\n\n"
-                + "If this wasn't you, please reset your password immediately.";
+        String plainText = "Hello,\n\n"
+                + "Your Supplier Performance Rating System account was successfully logged in.\n\n"
+                + "Login Date: " + loginDate + "\n"
+                + "Login Time: " + loginTimeStr + "\n"
+                + "Application: Supplier Performance Rating System\n\n"
+                + "If you did not perform this login, please contact the administrator.\n\n"
+                + "Regards,\nSPRS Team";
 
         sendEmail(user.getEmail(), subject, html, plainText);
     }

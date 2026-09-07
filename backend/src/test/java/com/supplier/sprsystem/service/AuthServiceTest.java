@@ -207,13 +207,45 @@ public class AuthServiceTest {
         assertEquals("john@example.com", response.getEmail());
         assertTrue(response.getRoles().contains("ROLE_MANAGER"));
 
-        verify(emailService, times(1)).sendLoginAlertEmail(any(User.class), anyString(), anyString(), any());
+        verify(emailService, times(1)).sendLoginAlertEmail(eq(sampleUser), anyString(), anyString(), any());
         verify(smsService, times(1)).sendLoginAlertSms(any(User.class), anyString(), any());
         verify(notificationService, times(1)).createNotification(any(), anyString(), anyString(), any(), any(), anyString(), any());
     }
 
     @Test
-    @DisplayName("Test login with invalid password throws UnauthorizedException")
+    @DisplayName("Test email service failure during login does not block successful authentication")
+    void testAuthenticateUser_EmailFailure_DoesNotBlockLogin() {
+        LoginRequest loginRequest = LoginRequest.builder()
+                .username("john_doe")
+                .password("SecurePass@123")
+                .build();
+
+        UserDetailsImpl userDetails = new UserDetailsImpl(
+                1L,
+                "john_doe",
+                "john@example.com",
+                "John Doe",
+                "encodedPassword123",
+                true,
+                List.of(new SimpleGrantedAuthority("ROLE_MANAGER"))
+        );
+
+        Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+        when(userRepository.findByUsername("john_doe")).thenReturn(Optional.of(sampleUser));
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(auth);
+        when(jwtUtils.generateJwtToken(auth)).thenReturn("mockJwtToken123");
+        doThrow(new RuntimeException("SMTP Connection Refused")).when(emailService).sendLoginAlertEmail(any(), any(), any(), any());
+
+        JwtAuthResponse response = authService.authenticateUser(loginRequest);
+
+        assertNotNull(response);
+        assertEquals("mockJwtToken123", response.getToken());
+        assertEquals("john@example.com", response.getEmail());
+    }
+
+    @Test
+    @DisplayName("Test login with invalid password throws UnauthorizedException and does NOT send email")
     void testAuthenticateUser_InvalidCredentials_ThrowsException() {
         LoginRequest loginRequest = LoginRequest.builder()
                 .username("john_doe")
@@ -225,10 +257,11 @@ public class AuthServiceTest {
                 .thenThrow(new BadCredentialsException("Bad credentials"));
 
         assertThrows(UnauthorizedException.class, () -> authService.authenticateUser(loginRequest));
+        verify(emailService, never()).sendLoginAlertEmail(any(), any(), any(), any());
     }
 
     @Test
-    @DisplayName("Test login with disabled account throws UnauthorizedException")
+    @DisplayName("Test login with disabled account throws UnauthorizedException and does NOT send email")
     void testAuthenticateUser_DisabledAccount_ThrowsException() {
         sampleUser.setActive(false);
 
@@ -241,10 +274,11 @@ public class AuthServiceTest {
 
         assertThrows(UnauthorizedException.class, () -> authService.authenticateUser(loginRequest));
         verify(authenticationManager, never()).authenticate(any());
+        verify(emailService, never()).sendLoginAlertEmail(any(), any(), any(), any());
     }
 
     @Test
-    @DisplayName("Test login with non-existent user throws UnauthorizedException")
+    @DisplayName("Test login with non-existent user throws UnauthorizedException and does NOT send email")
     void testAuthenticateUser_UserNotFound_ThrowsException() {
         LoginRequest loginRequest = LoginRequest.builder()
                 .username("unknown_user")
@@ -255,5 +289,6 @@ public class AuthServiceTest {
         when(userRepository.findByEmail("unknown_user")).thenReturn(Optional.empty());
 
         assertThrows(UnauthorizedException.class, () -> authService.authenticateUser(loginRequest));
+        verify(emailService, never()).sendLoginAlertEmail(any(), any(), any(), any());
     }
 }

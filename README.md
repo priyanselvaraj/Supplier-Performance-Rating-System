@@ -183,6 +183,7 @@ All detailed architecture, deployment, disaster recovery, and operational guides
 - [Supplier Portal Guide](docs/SUPPLIER_PORTAL.md): Vendor onboarding, dispute filing, and self-service scorecards.
 - [AI Intelligence & Predictive Analytics](docs/AI_INTELLIGENCE.md): Linear regression forecasting, anomaly alerts, and risk scoring.
 - [Notifications & Real-Time Monitoring](docs/NOTIFICATIONS.md): Multi-channel events, SSE stream architecture.
+- [Email & Login Notifications Guide](docs/EMAIL_NOTIFICATIONS.md): SMTP configuration, Gmail App Password setup, login security alerts, and error isolation.
 - [Supplier Improvement Actions](docs/IMPROVEMENT_ACTIONS.md): Corrective Action Plans (CAP) and AI remediation.
 - [API Overview](docs/API_OVERVIEW.md): Summary of all REST endpoints, HTTP methods, and RBAC permissions.
 - [Demo & Viva Presentation Guide](docs/DEMO_GUIDE.md): 10-step evaluation and demonstration flow.
