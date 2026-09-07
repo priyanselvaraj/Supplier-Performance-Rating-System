@@ -19,7 +19,13 @@ import com.supplier.sprsystem.repository.UserRepository;
 import com.supplier.sprsystem.security.jwt.JwtService;
 import com.supplier.sprsystem.security.jwt.JwtUtils;
 import com.supplier.sprsystem.security.services.UserDetailsImpl;
+import com.supplier.sprsystem.model.entity.NotificationPriority;
+import com.supplier.sprsystem.model.entity.NotificationType;
 import com.supplier.sprsystem.service.AuthService;
+import com.supplier.sprsystem.service.EmailService;
+import com.supplier.sprsystem.service.NotificationService;
+import com.supplier.sprsystem.service.SmsService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -30,7 +36,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -39,25 +49,36 @@ import java.util.stream.Collectors;
 @Service
 public class AuthServiceImpl implements AuthService {
 
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final SupplierRepository supplierRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtUtils;
+    private final NotificationService notificationService;
+    private final EmailService emailService;
+    private final SmsService smsService;
 
     public AuthServiceImpl(AuthenticationManager authenticationManager,
                            UserRepository userRepository,
                            RoleRepository roleRepository,
                            SupplierRepository supplierRepository,
                            PasswordEncoder passwordEncoder,
-                           JwtService jwtUtils) {
+                           JwtService jwtUtils,
+                           NotificationService notificationService,
+                           EmailService emailService,
+                           SmsService smsService) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.supplierRepository = supplierRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtils = jwtUtils;
+        this.notificationService = notificationService;
+        this.emailService = emailService;
+        this.smsService = smsService;
     }
 
     @Override
@@ -94,6 +115,9 @@ public class AuthServiceImpl implements AuthService {
 
             Long supplierId = user.getSupplier() != null ? user.getSupplier().getId() : null;
             String supplierName = user.getSupplier() != null ? user.getSupplier().getName() : null;
+
+            // Dispatch Login Security Notifications (In-App, Email, SMS)
+            dispatchLoginNotifications(user);
 
             return JwtAuthResponse.builder()
                     .token(jwt)
@@ -193,6 +217,10 @@ public class AuthServiceImpl implements AuthService {
                 .build();
 
         User savedUser = userRepository.save(user);
+
+        // Dispatch Welcome Notifications (In-App, Email, SMS)
+        dispatchWelcomeNotifications(savedUser);
+
         return mapToUserResponse(savedUser);
     }
 
@@ -252,5 +280,94 @@ public class AuthServiceImpl implements AuthService {
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
                 .build();
+    }
+
+    private void dispatchWelcomeNotifications(User user) {
+        if (user == null) return;
+
+        try {
+            notificationService.createNotification(
+                    user.getId(),
+                    "Welcome to SPRS!",
+                    "Welcome to Supplier Performance Rating System, " + user.getFullName() + "! Your account is active and ready to use.",
+                    NotificationType.SECURITY,
+                    NotificationPriority.HIGH,
+                    "USER",
+                    user.getId()
+            );
+        } catch (Exception e) {
+            // Non-blocking notification dispatch
+        }
+
+        try {
+            emailService.sendWelcomeEmail(user);
+        } catch (Exception e) {
+            // Non-blocking email dispatch
+        }
+
+        try {
+            smsService.sendWelcomeSms(user);
+        } catch (Exception e) {
+            // Non-blocking SMS dispatch
+        }
+    }
+
+    private void dispatchLoginNotifications(User user) {
+        if (user == null) return;
+
+        String[] meta = getClientRequestMetadata();
+        String ipAddress = meta[0];
+        String userAgent = meta[1];
+        LocalDateTime now = LocalDateTime.now();
+        String formattedTime = now.format(DATE_FORMATTER);
+
+        try {
+            notificationService.createNotification(
+                    user.getId(),
+                    "New Login Detected",
+                    "Successful login to your SPRS account at " + formattedTime + " (IP: " + ipAddress + "). If this was not you, please change your password immediately.",
+                    NotificationType.SECURITY,
+                    NotificationPriority.LOW,
+                    "AUTH",
+                    user.getId()
+            );
+        } catch (Exception e) {
+            // Non-blocking notification dispatch
+        }
+
+        try {
+            emailService.sendLoginAlertEmail(user, ipAddress, userAgent, now);
+        } catch (Exception e) {
+            // Non-blocking email dispatch
+        }
+
+        try {
+            smsService.sendLoginAlertSms(user, ipAddress, now);
+        } catch (Exception e) {
+            // Non-blocking SMS dispatch
+        }
+    }
+
+    private String[] getClientRequestMetadata() {
+        String clientIp = "127.0.0.1";
+        String userAgent = "Web Browser";
+        try {
+            ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            if (attrs != null) {
+                HttpServletRequest request = attrs.getRequest();
+                String xfHeader = request.getHeader("X-Forwarded-For");
+                if (xfHeader != null && !xfHeader.trim().isEmpty()) {
+                    clientIp = xfHeader.split(",")[0].trim();
+                } else if (request.getRemoteAddr() != null) {
+                    clientIp = request.getRemoteAddr();
+                }
+                String ua = request.getHeader("User-Agent");
+                if (ua != null && !ua.trim().isEmpty()) {
+                    userAgent = ua.trim();
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return new String[]{clientIp, userAgent};
     }
 }

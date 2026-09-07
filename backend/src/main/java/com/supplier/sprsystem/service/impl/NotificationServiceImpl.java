@@ -38,17 +38,23 @@ public class NotificationServiceImpl implements NotificationService {
     private final UserNotificationPreferenceRepository preferenceRepository;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final com.supplier.sprsystem.service.EmailService emailService;
+    private final com.supplier.sprsystem.service.SmsService smsService;
 
     private final Map<Long, List<SseEmitter>> sseEmitters = new ConcurrentHashMap<>();
 
     public NotificationServiceImpl(NotificationRepository notificationRepository,
                                   UserNotificationPreferenceRepository preferenceRepository,
                                   UserRepository userRepository,
-                                  RoleRepository roleRepository) {
+                                  RoleRepository roleRepository,
+                                  com.supplier.sprsystem.service.EmailService emailService,
+                                  com.supplier.sprsystem.service.SmsService smsService) {
         this.notificationRepository = notificationRepository;
         this.preferenceRepository = preferenceRepository;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.emailService = emailService;
+        this.smsService = smsService;
     }
 
     @Override
@@ -58,6 +64,27 @@ public class NotificationServiceImpl implements NotificationService {
 
         // Check user preferences
         Optional<UserNotificationPreference> prefOpt = preferenceRepository.findByUserIdAndNotificationType(userId, type);
+        
+        // Dispatch Email Notification if enabled (default true)
+        boolean emailEnabled = prefOpt.map(UserNotificationPreference::isEmailEnabled).orElse(true);
+        if (emailEnabled && emailService != null) {
+            try {
+                emailService.sendGeneralNotificationEmail(user, title, message, type);
+            } catch (Exception e) {
+                logger.debug("Non-blocking email dispatch error: {}", e.getMessage());
+            }
+        }
+
+        // Dispatch SMS Notification for HIGH/CRITICAL priority if enabled (default true)
+        boolean smsEnabled = prefOpt.map(UserNotificationPreference::isSmsEnabled).orElse(true);
+        if (smsEnabled && smsService != null && (priority == NotificationPriority.HIGH || priority == NotificationPriority.CRITICAL)) {
+            try {
+                smsService.sendGeneralNotificationSms(user, title + ": " + message);
+            } catch (Exception e) {
+                logger.debug("Non-blocking SMS dispatch error: {}", e.getMessage());
+            }
+        }
+
         if (prefOpt.isPresent() && !prefOpt.get().isInAppEnabled()) {
             logger.debug("In-app notification of type {} skipped for user {} due to user preferences", type, userId);
             return null;
@@ -195,6 +222,7 @@ public class NotificationServiceImpl implements NotificationService {
             UserNotificationPreference pref = map.get(type);
             boolean inApp = pref != null ? pref.isInAppEnabled() : true;
             boolean email = pref != null ? pref.isEmailEnabled() : true;
+            boolean sms = pref != null ? pref.isSmsEnabled() : true;
 
             result.add(NotificationPreferenceResponse.builder()
                     .id(pref != null ? pref.getId() : null)
@@ -202,6 +230,7 @@ public class NotificationServiceImpl implements NotificationService {
                     .displayName(type.getDisplayName())
                     .inAppEnabled(inApp)
                     .emailEnabled(email)
+                    .smsEnabled(sms)
                     .build());
         }
         return result;
@@ -219,12 +248,14 @@ public class NotificationServiceImpl implements NotificationService {
                 pref = existingOpt.get();
                 pref.setInAppEnabled(req.isInAppEnabled());
                 pref.setEmailEnabled(req.isEmailEnabled());
+                pref.setSmsEnabled(req.isSmsEnabled());
             } else {
                 pref = UserNotificationPreference.builder()
                         .user(user)
                         .notificationType(req.getNotificationType())
                         .inAppEnabled(req.isInAppEnabled())
                         .emailEnabled(req.isEmailEnabled())
+                        .smsEnabled(req.isSmsEnabled())
                         .build();
             }
             preferenceRepository.save(pref);

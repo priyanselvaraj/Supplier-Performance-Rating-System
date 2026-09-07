@@ -43,6 +43,12 @@ public class NotificationServiceTest {
     @Mock
     private RoleRepository roleRepository;
 
+    @Mock
+    private EmailService emailService;
+
+    @Mock
+    private SmsService smsService;
+
     @InjectMocks
     private NotificationServiceImpl notificationService;
 

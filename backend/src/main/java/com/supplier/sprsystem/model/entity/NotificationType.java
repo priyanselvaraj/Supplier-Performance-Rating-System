@@ -9,7 +9,8 @@ public enum NotificationType {
     AI_INSIGHT("AI Prediction & Risk"),
     IMPROVEMENT_ACTION("Improvement Action"),
     WORKFLOW("Workflow & Approvals"),
-    ESCALATION("Workflow Escalation");
+    ESCALATION("Workflow Escalation"),
+    SECURITY("Security & Authentication");
 
     private final String displayName;
 

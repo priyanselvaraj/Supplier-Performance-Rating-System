@@ -93,7 +93,8 @@ export const NotificationCenter = () => {
       await notificationService.updatePreferences(updated.map(p => ({
         notificationType: p.notificationType,
         inAppEnabled: p.inAppEnabled,
-        emailEnabled: p.emailEnabled
+        emailEnabled: p.emailEnabled,
+        smsEnabled: p.smsEnabled
       })));
     } catch (err) {
       console.error('Failed to update preferences:', err);
@@ -107,6 +108,7 @@ export const NotificationCenter = () => {
       case 'RATING': return <TrendingUp className="h-5 w-5 text-emerald-600" />;
       case 'AI_INSIGHT': return <Sparkles className="h-5 w-5 text-purple-600" />;
       case 'IMPROVEMENT_ACTION': return <Wrench className="h-5 w-5 text-amber-600" />;
+      case 'SECURITY': return <Shield className="h-5 w-5 text-indigo-600" />;
       default: return <Shield className="h-5 w-5 text-slate-600" />;
     }
   };
@@ -185,7 +187,7 @@ export const NotificationCenter = () => {
           <div className="flex items-center justify-between border-b border-slate-200 pb-3">
             <div>
               <h3 className="text-sm font-bold text-slate-800">Notification Preferences</h3>
-              <p className="text-xs text-slate-500">Customize notification channels for your account.</p>
+              <p className="text-xs text-slate-500">Customize notification channels (In-App, Email, SMS) for your account.</p>
             </div>
             <button
               onClick={() => setShowPreferences(false)}
@@ -224,6 +226,15 @@ export const NotificationCenter = () => {
                       />
                       Email
                     </label>
+                    <label className="flex items-center gap-1 text-xs text-slate-600 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={p.smsEnabled}
+                        onChange={() => handleTogglePreference(idx, 'smsEnabled')}
+                        className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      SMS
+                    </label>
                   </div>
                 </div>
               ))}
@@ -235,7 +246,7 @@ export const NotificationCenter = () => {
       {/* Filters Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
         <div className="flex flex-wrap items-center gap-1.5">
-          {['ALL', 'ALERT', 'EVALUATION', 'RATING', 'IMPROVEMENT_ACTION', 'AI_INSIGHT', 'SYSTEM'].map((type) => (
+          {['ALL', 'ALERT', 'EVALUATION', 'RATING', 'IMPROVEMENT_ACTION', 'AI_INSIGHT', 'SECURITY', 'SYSTEM'].map((type) => (
             <button
               key={type}
               onClick={() => {

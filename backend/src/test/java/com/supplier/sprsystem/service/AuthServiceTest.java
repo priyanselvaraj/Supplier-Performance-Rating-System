@@ -57,6 +57,15 @@ public class AuthServiceTest {
     @Mock
     private com.supplier.sprsystem.security.jwt.JwtService jwtUtils;
 
+    @Mock
+    private NotificationService notificationService;
+
+    @Mock
+    private EmailService emailService;
+
+    @Mock
+    private SmsService smsService;
+
     @InjectMocks
     private AuthServiceImpl authService;
 
@@ -107,6 +116,9 @@ public class AuthServiceTest {
         assertNotNull(response);
         assertEquals("john_doe", response.getUsername());
         verify(userRepository, times(1)).save(any(User.class));
+        verify(emailService, times(1)).sendWelcomeEmail(any(User.class));
+        verify(smsService, times(1)).sendWelcomeSms(any(User.class));
+        verify(notificationService, times(1)).createNotification(any(), anyString(), anyString(), any(), any(), anyString(), any());
     }
 
     @Test
@@ -194,6 +206,10 @@ public class AuthServiceTest {
         assertEquals("john_doe", response.getUsername());
         assertEquals("john@example.com", response.getEmail());
         assertTrue(response.getRoles().contains("ROLE_MANAGER"));
+
+        verify(emailService, times(1)).sendLoginAlertEmail(any(User.class), anyString(), anyString(), any());
+        verify(smsService, times(1)).sendLoginAlertSms(any(User.class), anyString(), any());
+        verify(notificationService, times(1)).createNotification(any(), anyString(), anyString(), any(), any(), anyString(), any());
     }
 
     @Test

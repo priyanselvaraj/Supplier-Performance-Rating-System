@@ -8,15 +8,17 @@ public class NotificationPreferenceResponse {
     private String displayName;
     private boolean inAppEnabled;
     private boolean emailEnabled;
+    private boolean smsEnabled;
 
     public NotificationPreferenceResponse() {}
 
-    public NotificationPreferenceResponse(Long id, NotificationType notificationType, String displayName, boolean inAppEnabled, boolean emailEnabled) {
+    public NotificationPreferenceResponse(Long id, NotificationType notificationType, String displayName, boolean inAppEnabled, boolean emailEnabled, boolean smsEnabled) {
         this.id = id;
         this.notificationType = notificationType;
         this.displayName = displayName;
         this.inAppEnabled = inAppEnabled;
         this.emailEnabled = emailEnabled;
+        this.smsEnabled = smsEnabled;
     }
 
     public static Builder builder() {
@@ -29,15 +31,17 @@ public class NotificationPreferenceResponse {
         private String displayName;
         private boolean inAppEnabled;
         private boolean emailEnabled;
+        private boolean smsEnabled;
 
         public Builder id(Long id) { this.id = id; return this; }
         public Builder notificationType(NotificationType type) { this.notificationType = type; return this; }
         public Builder displayName(String name) { this.displayName = name; return this; }
         public Builder inAppEnabled(boolean inApp) { this.inAppEnabled = inApp; return this; }
         public Builder emailEnabled(boolean email) { this.emailEnabled = email; return this; }
+        public Builder smsEnabled(boolean sms) { this.smsEnabled = sms; return this; }
 
         public NotificationPreferenceResponse build() {
-            return new NotificationPreferenceResponse(id, notificationType, displayName, inAppEnabled, emailEnabled);
+            return new NotificationPreferenceResponse(id, notificationType, displayName, inAppEnabled, emailEnabled, smsEnabled);
         }
     }
 
@@ -51,4 +55,6 @@ public class NotificationPreferenceResponse {
     public void setInAppEnabled(boolean inAppEnabled) { this.inAppEnabled = inAppEnabled; }
     public boolean isEmailEnabled() { return emailEnabled; }
     public void setEmailEnabled(boolean emailEnabled) { this.emailEnabled = emailEnabled; }
+    public boolean isSmsEnabled() { return smsEnabled; }
+    public void setSmsEnabled(boolean smsEnabled) { this.smsEnabled = smsEnabled; }
 }
