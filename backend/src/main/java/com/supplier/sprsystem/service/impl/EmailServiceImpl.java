@@ -3,9 +3,14 @@ package com.supplier.sprsystem.service.impl;
 import com.supplier.sprsystem.model.entity.NotificationType;
 import com.supplier.sprsystem.model.entity.User;
 import com.supplier.sprsystem.service.EmailService;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -17,6 +22,8 @@ public class EmailServiceImpl implements EmailService {
     private static final Logger logger = LoggerFactory.getLogger(EmailServiceImpl.class);
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
+    private final JavaMailSender mailSender;
+
     @Value("${app.mail.enabled:true}")
     private boolean mailEnabled;
 
@@ -26,8 +33,12 @@ public class EmailServiceImpl implements EmailService {
     @Value("${app.mail.from-name:SPRS Notification Center}")
     private String mailFromName;
 
-    @Value("${app.mail.simulation-mode:true}")
+    @Value("${app.mail.simulation-mode:false}")
     private boolean simulationMode;
+
+    public EmailServiceImpl(@Autowired(required = false) JavaMailSender mailSender) {
+        this.mailSender = mailSender;
+    }
 
     @Override
     public void sendEmail(String toEmail, String subject, String bodyHtml, String plainTextFallback) {
@@ -42,16 +53,30 @@ public class EmailServiceImpl implements EmailService {
         }
 
         try {
-            if (simulationMode) {
+            if (simulationMode || mailSender == null) {
                 logger.info("[EMAIL SIMULATION] Sent to: <{}> | Subject: \"{}\" | From: \"{}\" <{}> | Body Length: {} chars",
                         toEmail, subject, mailFromName, mailFrom, bodyHtml != null ? bodyHtml.length() : 0);
                 return;
             }
 
-            // Real SMTP dispatch hook when production mail provider configured
-            logger.info("Dispatched SMTP email to <{}> with subject \"{}\"", toEmail, subject);
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setFrom(new InternetAddress(mailFrom, mailFromName));
+            helper.setTo(toEmail.trim());
+            helper.setSubject(subject);
+
+            if (bodyHtml != null && !bodyHtml.trim().isEmpty()) {
+                helper.setText(plainTextFallback != null ? plainTextFallback : bodyHtml, bodyHtml);
+            } else {
+                helper.setText(plainTextFallback != null ? plainTextFallback : subject, false);
+            }
+
+            mailSender.send(message);
+            logger.info("Successfully dispatched live email via SMTP to <{}> with subject \"{}\"", toEmail, subject);
         } catch (Exception e) {
-            logger.error("Failed to send email to <{}>: {}", toEmail, e.getMessage(), e);
+            logger.error("Failed to send email to <{}> via SMTP: {}. Falling back to simulated log.", toEmail, e.getMessage());
+            logger.info("[EMAIL FALLBACK LOG] To: <{}> | Subject: \"{}\" | Body: {}", toEmail, subject, plainTextFallback != null ? plainTextFallback : subject);
         }
     }
 

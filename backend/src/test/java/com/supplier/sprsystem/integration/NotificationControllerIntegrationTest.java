@@ -72,4 +72,16 @@ public class NotificationControllerIntegrationTest {
         mockMvc.perform(get("/api/v1/notifications"))
                 .andExpect(status().isUnauthorized());
     }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    @DisplayName("NOTIF-IT-06: Authenticated user can trigger test email to Gmail address")
+    void testSendTestEmail() throws Exception {
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/api/v1/notifications/test-email")
+                        .param("to", "testuser@gmail.com")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success", is(true)))
+                .andExpect(jsonPath("$.data", is("testuser@gmail.com")));
+    }
 }

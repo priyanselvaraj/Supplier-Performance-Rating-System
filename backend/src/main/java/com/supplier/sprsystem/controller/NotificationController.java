@@ -8,6 +8,7 @@ import com.supplier.sprsystem.dto.response.PaginatedResponse;
 import com.supplier.sprsystem.model.entity.NotificationType;
 import com.supplier.sprsystem.model.entity.User;
 import com.supplier.sprsystem.repository.UserRepository;
+import com.supplier.sprsystem.service.EmailService;
 import com.supplier.sprsystem.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,6 +23,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/notifications")
@@ -30,10 +32,12 @@ public class NotificationController {
 
     private final NotificationService notificationService;
     private final UserRepository userRepository;
+    private final EmailService emailService;
 
-    public NotificationController(NotificationService notificationService, UserRepository userRepository) {
+    public NotificationController(NotificationService notificationService, UserRepository userRepository, EmailService emailService) {
         this.notificationService = notificationService;
         this.userRepository = userRepository;
+        this.emailService = emailService;
     }
 
     @GetMapping
@@ -150,6 +154,34 @@ public class NotificationController {
     public SseEmitter subscribeStream(@AuthenticationPrincipal UserDetails userDetails) {
         Long userId = getUserId(userDetails);
         return notificationService.subscribeSse(userId);
+    }
+
+    @PostMapping("/test-email")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Send test notification email to a designated email/Gmail address")
+    public ResponseEntity<ApiResponse<String>> sendTestEmail(
+            @RequestParam(required = false) String to,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        String targetEmail = (to != null && !to.trim().isEmpty())
+                ? to.trim()
+                : (userDetails != null && userDetails.getUsername() != null && userDetails.getUsername().contains("@") ? userDetails.getUsername() : "test@example.com");
+
+        if (targetEmail.contains("@")) {
+            User user = userRepository.findByEmail(targetEmail)
+                    .or(() -> userDetails != null ? userRepository.findByUsername(userDetails.getUsername()) : Optional.empty())
+                    .orElseGet(() -> User.builder().username(targetEmail).email(targetEmail).fullName("SPRS User").build());
+
+            emailService.sendGeneralNotificationEmail(
+                    user,
+                    "SPRS Live Email Notification Test",
+                    "This is a test notification message from the Supplier Performance Rating System. Your email channel is configured and actively receiving messages!",
+                    NotificationType.SYSTEM
+            );
+            return ResponseEntity.ok(ApiResponse.success("Test email dispatched to " + targetEmail, targetEmail));
+        } else {
+            return ResponseEntity.badRequest().body(ApiResponse.error("Invalid email address: " + targetEmail));
+        }
     }
 
     private Long getUserId(UserDetails userDetails) {

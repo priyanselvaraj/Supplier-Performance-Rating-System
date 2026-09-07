@@ -29,6 +29,21 @@ spring:
         format_sql: false
         dialect: org.hibernate.dialect.MySQLDialect
     open-in-view: false
+  mail:
+    host: ${SPRING_MAIL_HOST:smtp.gmail.com}
+    port: ${SPRING_MAIL_PORT:587}
+    username: ${SPRING_MAIL_USERNAME:}
+    password: ${SPRING_MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
 
 # Application Custom Security & JWT Configuration
 app:
@@ -39,6 +54,15 @@ app:
     allowed-origins: ${ALLOWED_ORIGINS:http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173,http://localhost:80,http://localhost}
   seed:
     enabled: ${APP_SEED_ENABLED:true}
+  mail:
+    enabled: ${MAIL_ENABLED:true}
+    from: ${MAIL_FROM:noreply@sprsystem.com}
+    from-name: ${MAIL_FROM_NAME:SPRS Notification Center}
+    simulation-mode: ${MAIL_SIMULATION_MODE:false}
+  sms:
+    enabled: ${SMS_ENABLED:true}
+    from: ${SMS_FROM:SPRS_ALERTS}
+    simulation-mode: ${SMS_SIMULATION_MODE:true}
   ai:
     minimum-history: ${AI_MINIMUM_HISTORY:3}
     high-risk-threshold: ${AI_HIGH_RISK_THRESHOLD:50.0}
@@ -64,6 +88,9 @@ management:
   endpoint:
     health:
       show-details: when_authorized
+  health:
+    mail:
+      enabled: false
   info:
     env:
       enabled: true

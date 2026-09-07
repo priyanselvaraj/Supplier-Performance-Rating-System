@@ -49,6 +49,12 @@ export const notificationService = {
     return response.data;
   },
 
+  sendTestEmail: async (toEmail) => {
+    const params = toEmail ? { to: toEmail } : {};
+    const response = await api.post('/notifications/test-email', null, { params });
+    return response.data;
+  },
+
   connectSse: (onNotification, onError) => {
     const token = localStorage.getItem('token');
     // Standard EventSource does not support custom headers, but we can connect or fallback to polling if token in query/cookie
