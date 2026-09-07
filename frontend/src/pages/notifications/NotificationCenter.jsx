@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Bell, Check, CheckCheck, Trash2, Filter, AlertTriangle, 
   FileText, TrendingUp, Sparkles, Wrench, Shield, Settings,
-  ArrowRight, RefreshCw, Eye
+  ArrowRight, RefreshCw, Eye, Mail, Send, X
 } from 'lucide-react';
 import { notificationService } from '../../services/notification.service';
 import { Button } from '../../components/common/Button';
@@ -19,6 +19,10 @@ export const NotificationCenter = () => {
   const [showPreferences, setShowPreferences] = useState(false);
   const [preferences, setPreferences] = useState([]);
   const [prefLoading, setPrefLoading] = useState(false);
+  const [showTestEmailModal, setShowTestEmailModal] = useState(false);
+  const [testEmailInput, setTestEmailInput] = useState('priyanselvaraj756@gmail.com');
+  const [sendingTestEmail, setSendingTestEmail] = useState(false);
+  const [testEmailStatus, setTestEmailStatus] = useState(null);
   const navigate = useNavigate();
 
   const fetchNotifications = async () => {
@@ -101,6 +105,30 @@ export const NotificationCenter = () => {
     }
   };
 
+  const handleSendTestEmail = async (e) => {
+    e.preventDefault();
+    if (!testEmailInput || !testEmailInput.includes('@')) {
+      setTestEmailStatus({ type: 'error', message: 'Please provide a valid email address.' });
+      return;
+    }
+    setSendingTestEmail(true);
+    setTestEmailStatus(null);
+    try {
+      await notificationService.sendTestEmail(testEmailInput.trim());
+      setTestEmailStatus({ 
+        type: 'success', 
+        message: `Test email successfully dispatched to ${testEmailInput.trim()}! Please check your Gmail Inbox and Spam folder.` 
+      });
+    } catch (err) {
+      setTestEmailStatus({ 
+        type: 'error', 
+        message: err.response?.data?.message || 'Failed to dispatch test email. Check server SMTP settings.' 
+      });
+    } finally {
+      setSendingTestEmail(false);
+    }
+  };
+
   const getIcon = (type) => {
     switch (type) {
       case 'ALERT': return <AlertTriangle className="h-5 w-5 text-rose-600" />;
@@ -148,7 +176,19 @@ export const NotificationCenter = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setShowTestEmailModal(true);
+              setTestEmailStatus(null);
+            }}
+            className="flex items-center gap-1.5 bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100"
+          >
+            <Mail className="h-4 w-4" /> Send to Gmail
+          </Button>
+
           <Button
             variant="outline"
             size="sm"
@@ -180,6 +220,77 @@ export const NotificationCenter = () => {
           </Button>
         </div>
       </div>
+
+      {/* Send Test Email to Gmail Modal */}
+      {showTestEmailModal && (
+        <div className="bg-white border border-blue-200 rounded-xl p-5 shadow-md space-y-4 animate-in fade-in duration-150">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div className="flex items-center gap-2">
+              <div className="p-2 rounded-lg bg-blue-100 text-blue-700">
+                <Mail className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-slate-900">Send Notification to Gmail</h3>
+                <p className="text-xs text-slate-500">Dispatch a live HTML test notification directly to any Gmail inbox.</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setShowTestEmailModal(false)}
+              className="p-1 text-slate-400 hover:text-slate-600 rounded-md"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
+          <form onSubmit={handleSendTestEmail} className="space-y-3">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Recipient Gmail Address
+              </label>
+              <input
+                type="email"
+                value={testEmailInput}
+                onChange={(e) => setTestEmailInput(e.target.value)}
+                placeholder="e.g. your.email@gmail.com"
+                required
+                className="w-full text-sm px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            {testEmailStatus && (
+              <div className={`p-3 rounded-lg text-xs font-medium flex items-center gap-2 ${
+                testEmailStatus.type === 'success' 
+                  ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' 
+                  : 'bg-rose-50 text-rose-800 border border-rose-200'
+              }`}>
+                {testEmailStatus.type === 'success' ? <Check className="h-4 w-4 text-emerald-600 shrink-0" /> : <AlertTriangle className="h-4 w-4 text-rose-600 shrink-0" />}
+                <span>{testEmailStatus.message}</span>
+              </div>
+            )}
+
+            <div className="flex items-center justify-end gap-2 pt-1">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowTestEmailModal(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                variant="primary"
+                size="sm"
+                disabled={sendingTestEmail}
+                className="flex items-center gap-1.5"
+              >
+                <Send className="h-3.5 w-3.5" />
+                {sendingTestEmail ? 'Sending to Gmail...' : 'Send Message Now'}
+              </Button>
+            </div>
+          </form>
+        </div>
+      )}
 
       {/* Preferences Drawer / Modal */}
       {showPreferences && (
