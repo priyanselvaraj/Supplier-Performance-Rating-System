@@ -44,7 +44,7 @@ This guide provides end-to-end instructions for running, testing, containerizing
 ## 💻 1. Local Development Setup (Without Docker)
 
 ### Prerequisites
-- **Java**: OpenJDK 17 or higher
+- **Java**: OpenJDK 25 or higher
 - **Maven**: 3.9+
 - **Node.js**: 18.x or 20.x
 - **npm**: 9.x+

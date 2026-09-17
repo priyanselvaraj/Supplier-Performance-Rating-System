@@ -32,7 +32,7 @@ The completion of **Phase 17** marks the final milestone of the 17-phase system 
 +-----------------------------------------------------------------------------------+
 |                               APPLICATION TIER                                    |
 |                                                                                   |
-|  Spring Boot 3.3.3 API Service (Java 17 / Eclipse Temurin)                        |
+|  Spring Boot 3.5.16 API Service (Java 25 / Eclipse Temurin)                       |
 |                                                                                   |
 |  +---------------------------+  +---------------------------+                     |
 |  | Authentication & Security |  | Core Business Services    |                     |
@@ -71,7 +71,7 @@ The completion of **Phase 17** marks the final milestone of the 17-phase system 
 
 | Phase | Core Capability | Architectural Highlights |
 | :--- | :--- | :--- |
-| **Phase 1** | Project Setup & Architecture | Monorepo layout, Maven Java 17 backend, React 18 TypeScript frontend. |
+| **Phase 1** | Project Setup & Architecture | Monorepo layout, Maven Java 25 backend, React 18 TypeScript frontend. |
 | **Phase 2** | Database & Core Models | MySQL schema, JPA entities, audited timestamps, base repositories. |
 | **Phase 3** | Authentication & Security | JWT token generation/validation, password encryption (BCrypt), Auth Controller. |
 | **Phase 4** | Role-Based Access Control | 4 primary roles (`ROLE_ADMIN`, `ROLE_MANAGER`, `ROLE_EVALUATOR`, `ROLE_SUPPLIER`). |

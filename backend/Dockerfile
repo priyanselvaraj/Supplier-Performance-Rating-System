@@ -1,7 +1,7 @@
 # ==========================================
 # STAGE 1: Build JAR using Maven
 # ==========================================
-FROM maven:3.9.6-eclipse-temurin-17 AS builder
+FROM maven:3.9-eclipse-temurin-25 AS builder
 
 WORKDIR /app
 
@@ -15,7 +15,7 @@ RUN mvn clean package -DskipTests
 # ==========================================
 # STAGE 2: Lightweight Production Runtime
 # ==========================================
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:25-jre-alpine
 
 WORKDIR /app
 

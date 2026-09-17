@@ -27,7 +27,7 @@ git checkout -b feature/your-feature-name
 
 ## 💻 Development Workflow
 
-### Backend (Spring Boot 3.3.3 / Java 17)
+### Backend (Spring Boot 3.5.16 / Java 25)
 1. Navigate to the backend folder:
    ```bash
    cd backend

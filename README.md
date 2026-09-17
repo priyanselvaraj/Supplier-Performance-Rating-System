@@ -1,6 +1,6 @@
 # Supplier Performance Rating System (SPRS)
 
-[![Java 17+](https://img.shields.io/badge/Java-17%2B-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://www.oracle.com/java/)
+[![Java 25+](https://img.shields.io/badge/Java-25%2B-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://www.oracle.com/java/)
 [![Spring Boot 3.3.3](https://img.shields.io/badge/Spring_Boot-3.3.3-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)](https://spring.io/projects/spring-boot)
 [![React 18](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-5.4-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
@@ -29,7 +29,7 @@ The **Supplier Performance Rating System (SPRS)** is a full-stack, enterprise-gr
 ## 2. Tech Stack & Architecture
 
 ### Backend Architecture
-- **Language**: Java 17+ (Eclipse Temurin LTS)
+- **Language**: Java 25+ (Eclipse Temurin LTS)
 - **Framework**: Spring Boot 3.3.3
 - **Persistence & ORM**: Spring Data JPA / Hibernate (with optimized multi-column indexes)
 - **Security & Authorization**: Spring Security 6, JJWT (0.12.6), BCrypt, API Key Filter, Token Bucket Rate Limiting
@@ -85,7 +85,7 @@ flowchart TD
 
 | Phase | Capability | Description |
 | :--- | :--- | :--- |
-| **Phases 1–4** | **Core Architecture & Security** | Java 17 backend, React 18 frontend, MySQL schema, stateless JWT, and 4-tier RBAC (`ADMIN`, `MANAGER`, `EVALUATOR`, `SUPPLIER`). |
+| **Phases 1–4** | **Core Architecture & Security** | Java 25 backend, React 18 frontend, MySQL schema, stateless JWT, and 4-tier RBAC (`ADMIN`, `MANAGER`, `EVALUATOR`, `SUPPLIER`). |
 | **Phases 5–7** | **Supplier Directory & Scoring** | Supplier directory, dynamic criteria weights (100%), draft evaluations, and weighted score calculations. |
 | **Phases 8–10** | **Rating Engine & Reporting** | Automatic tier grading (`EXCELLENT`, `GOOD`, `AVERAGE`, `POOR`), executive charts, and PDF/Excel/CSV exports. |
 | **Phase 11** | **AI Supplier Intelligence** | Statistical trend regression, multi-factor risk scoring (0–100), and prescriptive remediation action generator. |

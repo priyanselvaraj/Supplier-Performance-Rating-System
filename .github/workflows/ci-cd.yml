@@ -11,16 +11,16 @@ jobs:
   # JOB 1: Backend Verification & Testing
   # ==========================================
   backend-ci:
-    name: Backend Build & Test (Java 17 / Maven)
+    name: Backend Build & Test (Java 25 / Maven)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17 (Eclipse Temurin)
+      - name: Set up JDK 25 (Eclipse Temurin)
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: '25'
           distribution: 'temurin'
           cache: maven
 
