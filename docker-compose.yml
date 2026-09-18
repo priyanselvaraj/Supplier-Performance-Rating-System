@@ -9,7 +9,7 @@ services:
     container_name: sprs-mysql
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: ${DB_NAME:-spr_system_db}
+      MYSQL_DATABASE: ${DB_NAME:-supplier_rating_db}
       MYSQL_USER: ${DB_USERNAME:-spruser}
       MYSQL_PASSWORD: ${DB_PASSWORD:-sprpassword}
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpassword}
@@ -42,12 +42,19 @@ services:
       SPRING_PROFILES_ACTIVE: prod
       DB_HOST: mysql
       DB_PORT: 3306
-      DB_NAME: ${DB_NAME:-spr_system_db}
+      DB_NAME: ${DB_NAME:-supplier_rating_db}
       DB_USERNAME: ${DB_USERNAME:-spruser}
       DB_PASSWORD: ${DB_PASSWORD:-sprpassword}
       JWT_SECRET: ${JWT_SECRET:-404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
       JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-86400000}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:5173,http://localhost:80,http://localhost,http://127.0.0.1:5173}
+      MAIL_HOST: ${MAIL_HOST:-smtp.gmail.com}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_FROM: ${MAIL_FROM:-}
+      MAIL_SMTP_AUTH: ${MAIL_SMTP_AUTH:-true}
+      MAIL_SMTP_STARTTLS_ENABLE: ${MAIL_SMTP_STARTTLS_ENABLE:-true}
     ports:
       - "${BACKEND_PORT:-8080}:8080"
     networks:

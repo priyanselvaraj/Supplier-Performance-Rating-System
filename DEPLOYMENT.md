@@ -55,7 +55,7 @@ This guide provides end-to-end instructions for running, testing, containerizing
    cd backend
    mvn clean compile
    ```
-2. Run backend in development mode (uses H2 in-memory DB by default):
+2. Run backend in development mode (connected to MySQL database `supplier_rating_db`):
    ```bash
    mvn spring-boot:run
    ```
@@ -97,7 +97,7 @@ cp deploy/.env.example deploy/.env
 ```
 Ensure production passwords and a strong 256-bit JWT secret are set in `deploy/.env`:
 ```env
-DB_NAME=spr_system_db
+DB_NAME=supplier_rating_db
 DB_USERNAME=spruser
 DB_PASSWORD=SecurePassword@2026
 DB_ROOT_PASSWORD=RootSecret@2026
@@ -154,7 +154,7 @@ To restore the database from a compressed snapshot:
 | `BACKEND_PORT` | Backend application port | `8080` |
 | `DB_HOST` | Database hostname | `mysql` (Docker) or `localhost` (Local) |
 | `DB_PORT` | MySQL connection port | `3306` |
-| `DB_NAME` | Database schema name | `spr_system_db` |
+| `DB_NAME` | Database schema name | `supplier_rating_db` |
 | `DB_USERNAME` | Database user | `spruser` |
 | `DB_PASSWORD` | Database user password | `sprpassword` |
 | `DB_ROOT_PASSWORD` | MySQL root administrative password | `rootpassword` |

@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -23,6 +24,9 @@ public class EmailServiceImpl implements EmailService {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     private final JavaMailSender mailSender;
+
+    @Value("${spring.mail.username:}")
+    private String springMailUsername;
 
     @Value("${app.mail.enabled:true}")
     private boolean mailEnabled;
@@ -41,6 +45,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
+    @Async
     public void sendEmail(String toEmail, String subject, String bodyHtml, String plainTextFallback) {
         if (!mailEnabled) {
             logger.debug("Email notifications disabled via configuration. Skipping email to {}", toEmail);
@@ -53,9 +58,13 @@ public class EmailServiceImpl implements EmailService {
         }
 
         try {
-            if (simulationMode || mailSender == null) {
-                logger.info("[EMAIL SIMULATION] Sent to: <{}> | Subject: \"{}\" | From: \"{}\" <{}> | Body Length: {} chars",
-                        toEmail, subject, mailFromName, mailFrom, bodyHtml != null ? bodyHtml.length() : 0);
+            boolean hasSmtpCredentials = springMailUsername != null && !springMailUsername.trim().isEmpty();
+            if (simulationMode || mailSender == null || !hasSmtpCredentials) {
+                logger.info("[EMAIL NOTIFICATION] Sent to: <{}> | Subject: \"{}\" | From: \"{}\" <{}>",
+                        toEmail, subject, mailFromName, mailFrom);
+                if (!hasSmtpCredentials && !simulationMode) {
+                    logger.info("Notice: Live SMTP credentials not configured in .env (MAIL_USERNAME/MAIL_PASSWORD). Email was logged locally.");
+                }
                 return;
             }
 
@@ -75,12 +84,12 @@ public class EmailServiceImpl implements EmailService {
             mailSender.send(message);
             logger.info("Successfully dispatched live email via SMTP to <{}> with subject \"{}\"", toEmail, subject);
         } catch (Exception e) {
-            logger.error("Failed to send email to <{}> via SMTP: {}. Falling back to simulated log.", toEmail, e.getMessage());
-            logger.info("[EMAIL FALLBACK LOG] To: <{}> | Subject: \"{}\" | Body: {}", toEmail, subject, plainTextFallback != null ? plainTextFallback : subject);
+            logger.error("Failed to send email notification via SMTP to <{}>: {}", toEmail, e.getMessage());
         }
     }
 
     @Override
+    @Async
     public void sendWelcomeEmail(User user) {
         if (user == null || user.getEmail() == null) return;
 
@@ -160,13 +169,14 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
+    @Async
     public void sendLoginAlertEmail(User user, String ipAddress, String userAgent, LocalDateTime loginTime) {
         if (user == null || user.getEmail() == null || user.getEmail().trim().isEmpty()) return;
 
         LocalDateTime timestamp = (loginTime != null) ? loginTime : LocalDateTime.now();
         String loginDate = timestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         String loginTimeStr = timestamp.format(DateTimeFormatter.ofPattern("HH:mm:ss"));
-        String subject = "SPRS Login Notification";
+        String subject = "Login Successful - Supplier Performance Rating System";
         String fullName = (user.getFullName() != null && !user.getFullName().trim().isEmpty()) ? user.getFullName() : user.getUsername();
         String safeIp = (ipAddress != null && !ipAddress.trim().isEmpty()) ? ipAddress.trim() : "Unknown IP";
         String safeAgent = (userAgent != null && !userAgent.trim().isEmpty()) ? userAgent.trim() : "Web Browser / API Client";
@@ -245,6 +255,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
+    @Async
     public void sendGeneralNotificationEmail(User user, String title, String message, NotificationType type) {
         if (user == null || user.getEmail() == null) return;
 

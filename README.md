@@ -128,6 +128,62 @@ The application will be accessible at:
 - **Swagger Documentation**: [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
 - **Actuator Health**: [http://localhost:8080/actuator/health](http://localhost:8080/actuator/health)
 
+### Local MySQL and Environment Setup
+
+The application uses the persistent MySQL database `supplier_rating_db`. Copy `.env.example` to `.env` and set `DB_PASSWORD` to the local MySQL password. The default `dev` profile uses this MySQL datasource with `spring.jpa.hibernate.ddl-auto=update`; it does not use an in-memory or `create-drop` database.
+
+Verify registration persistence in MySQL Workbench:
+
+```sql
+CREATE DATABASE IF NOT EXISTS supplier_rating_db;
+
+USE supplier_rating_db;
+
+SHOW TABLES;
+
+SELECT * FROM users;
+
+SELECT COUNT(*) AS total_users
+FROM users;
+```
+
+Register an account, verify it appears in `users`, stop and restart the backend and frontend, then log in with the same email and password.
+
+### Gmail Login Notifications
+
+Set these environment variables for Gmail SMTP. `MAIL_PASSWORD` must be a Google App Password generated with 2-Step Verification enabled, not the normal Gmail password. Keep `.env` out of source control.
+
+```env
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=yourgmail@gmail.com
+MAIL_PASSWORD=YOUR_GMAIL_APP_PASSWORD
+MAIL_FROM=yourgmail@gmail.com
+MAIL_SMTP_AUTH=true
+MAIL_SMTP_STARTTLS_ENABLE=true
+```
+
+After credentials are validated, a successful login sends `SPRS Login Notification` to the registered account email. Email delivery failures are logged safely and do not invalidate a successful JWT login.
+
+### Invalid login details after restart
+
+```sql
+USE supplier_rating_db;
+SELECT * FROM users;
+```
+
+Confirm:
+
+- The account exists.
+- The backend uses `supplier_rating_db`.
+- MySQL is running.
+- The correct Spring profile is active.
+- The password is BCrypt encoded.
+- Registration calls the repository save method.
+- The backend is not using an in-memory user list.
+
+For an unknown database, check `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USERNAME`, and `DB_PASSWORD`. For Gmail failures, check the App Password, SMTP variables, and port 587; the login response remains the normal JWT response.
+
 ---
 
 ## 6. Pre-Seeded Demo Credentials

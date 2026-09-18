@@ -175,9 +175,7 @@ public class AuthServiceImpl implements AuthService {
             for (String role : strRoles) {
                 String normalized = role.toUpperCase();
                 if (normalized.equals("ADMIN") || normalized.equals("ROLE_ADMIN")) {
-                    Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
-                            .orElseGet(() -> roleRepository.save(Role.builder().name(ERole.ROLE_ADMIN).build()));
-                    roles.add(adminRole);
+                    throw new BadRequestException("Admin accounts must be provisioned by an administrator");
                 } else if (normalized.equals("MANAGER") || normalized.equals("ROLE_MANAGER")) {
                     Role managerRole = roleRepository.findByName(ERole.ROLE_MANAGER)
                             .orElseGet(() -> roleRepository.save(Role.builder().name(ERole.ROLE_MANAGER).build()));

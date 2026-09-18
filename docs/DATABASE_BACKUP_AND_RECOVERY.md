@@ -46,10 +46,10 @@ BACKUP_DIR="./backups" DB_HOST="localhost" DB_PORT="3306" DB_PASSWORD="sprpasswo
 The recovery script (`deploy/scripts/restore.sh`) handles full decompression, atomic restoration, and table verification.
 
 ### Disaster Recovery Steps:
-1. **Identify Target Backup**: Locate the most recent healthy backup archive (e.g., `sprs_backup_spr_system_db_20260906_020000.sql.gz`).
+1. **Identify Target Backup**: Locate the most recent healthy backup archive (e.g., `sprs_backup_supplier_rating_db_20260906_020000.sql.gz`).
 2. **Execute Restore Script**:
    ```bash
-   ./deploy/scripts/restore.sh ./backups/sprs_backup_spr_system_db_20260906_020000.sql.gz
+   ./deploy/scripts/restore.sh ./backups/sprs_backup_supplier_rating_db_20260906_020000.sql.gz
    ```
 3. **Verification**:
    - The script performs a checksum validation on the gzip archive before unpacking.
@@ -63,6 +63,6 @@ To recover data up to a specific timestamp between daily snapshots:
 1. Restore the most recent daily snapshot prior to the incident timestamp using `restore.sh`.
 2. Extract binary log entries from the binlog directory up to the desired timestamp:
    ```bash
-   mysqlbinlog --stop-datetime="2026-09-06 14:30:00" /var/lib/mysql/binlog.0000* | mysql -u spruser -p spr_system_db
+   mysqlbinlog --stop-datetime="2026-09-06 14:30:00" /var/lib/mysql/binlog.0000* | mysql -u spruser -p supplier_rating_db
    ```
 3. Restart backend instances and verify application state via the SPRS Admin Dashboard.

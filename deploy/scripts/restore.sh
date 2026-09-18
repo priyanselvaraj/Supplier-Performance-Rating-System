@@ -8,14 +8,14 @@ set -euo pipefail
 
 if [ "$#" -lt 1 ]; then
     echo "Usage: $0 <path-to-backup-file.sql.gz>"
-    echo "Example: $0 /backups/sprs_backup_spr_system_db_20260906_120000.sql.gz"
+    echo "Example: $0 /backups/sprs_backup_supplier_rating_db_20260906_120000.sql.gz"
     exit 1
 fi
 
 BACKUP_FILE="$1"
 DB_HOST="${DB_HOST:-mysql}"
 DB_PORT="${DB_PORT:-3306}"
-DB_NAME="${DB_NAME:-spr_system_db}"
+DB_NAME="${DB_NAME:-supplier_rating_db}"
 DB_USER="${DB_USERNAME:-spruser}"
 DB_PASSWORD="${DB_PASSWORD:-sprpassword}"
 

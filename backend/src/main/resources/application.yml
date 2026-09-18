@@ -10,8 +10,8 @@ spring:
     active: ${SPRING_PROFILES_ACTIVE:dev}
   datasource:
     url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:supplier_rating_db}?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-    username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:root}
+    username: "${DB_USERNAME:root}"
+    password: "${DB_PASSWORD:MyNewPass}"
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       pool-name: SPRS-HikariCP-Pool
@@ -37,9 +37,9 @@ spring:
     properties:
       mail:
         smtp:
-          auth: true
+          auth: ${MAIL_SMTP_AUTH:true}
           starttls:
-            enable: true
+            enable: ${MAIL_SMTP_STARTTLS_ENABLE:true}
             required: true
           connectiontimeout: 5000
           timeout: 5000
@@ -56,7 +56,7 @@ app:
     enabled: ${APP_SEED_ENABLED:true}
   mail:
     enabled: ${MAIL_ENABLED:true}
-    from: ${MAIL_FROM:noreply@sprsystem.com}
+    from: ${MAIL_FROM:${MAIL_USERNAME:noreply@sprsystem.com}}
     from-name: ${MAIL_FROM_NAME:SPRS Notification Center}
     simulation-mode: ${MAIL_SIMULATION_MODE:false}
   sms:

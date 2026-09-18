@@ -43,6 +43,7 @@ public class EmailServiceTest {
         ReflectionTestUtils.setField(emailService, "mailFrom", "noreply@sprsystem.com");
         ReflectionTestUtils.setField(emailService, "mailFromName", "SPRS Notification Center");
         ReflectionTestUtils.setField(emailService, "simulationMode", false);
+        ReflectionTestUtils.setField(emailService, "springMailUsername", "testuser@gmail.com");
 
         Role role = Role.builder().id(1L).name(ERole.ROLE_MANAGER).build();
         sampleUser = User.builder()
@@ -59,6 +60,14 @@ public class EmailServiceTest {
     @DisplayName("Test sending email in simulation mode does not invoke JavaMailSender")
     void testSendEmail_SimulationMode() {
         ReflectionTestUtils.setField(emailService, "simulationMode", true);
+        assertDoesNotThrow(() -> emailService.sendEmail("test@example.com", "Test Subject", "<p>Hello</p>", "Hello"));
+        verify(mailSender, never()).send(any(MimeMessage.class));
+    }
+
+    @Test
+    @DisplayName("Test sending email without configured username falls back to local log safely")
+    void testSendEmail_NoCredentials_FallsBackToLog() {
+        ReflectionTestUtils.setField(emailService, "springMailUsername", "");
         assertDoesNotThrow(() -> emailService.sendEmail("test@example.com", "Test Subject", "<p>Hello</p>", "Hello"));
         verify(mailSender, never()).send(any(MimeMessage.class));
     }
