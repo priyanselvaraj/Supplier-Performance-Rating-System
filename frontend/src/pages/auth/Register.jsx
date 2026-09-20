@@ -159,7 +159,7 @@ export const Register = () => {
                 className="px-2.5 py-2 text-xs font-medium text-slate-700 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 rounded-lg transition-colors text-left border border-slate-200"
               >
                 <div className="font-bold text-blue-600 truncate text-[11px]">Procure Lead</div>
-                <div className="text-[10px] text-slate-500 mt-0.5">Manager Role</div>
+                <div className="text-[10px] text-slate-500 mt-0.5">Company Role</div>
               </button>
 
               <button
@@ -178,7 +178,7 @@ export const Register = () => {
                 className="px-2.5 py-2 text-xs font-medium text-slate-700 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 rounded-lg transition-colors text-left border border-slate-200"
               >
                 <div className="font-bold text-indigo-600 truncate text-[11px]">Auditor</div>
-                <div className="text-[10px] text-slate-500 mt-0.5">Manager Role</div>
+                <div className="text-[10px] text-slate-500 mt-0.5">Company Role</div>
               </button>
 
               <button
@@ -256,7 +256,7 @@ export const Register = () => {
                   onChange={handleChange}
                   className="w-full px-3.5 py-2 text-sm bg-white border border-slate-300 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="manager">Manager (Evaluator & Reports)</option>
+                  <option value="manager">Company (Evaluator &amp; Reports)</option>
                   <option value="supplier">Supplier (Vendor Self-Service Portal)</option>
                 </select>
               </div>

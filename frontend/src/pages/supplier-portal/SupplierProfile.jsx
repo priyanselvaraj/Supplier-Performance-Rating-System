@@ -302,7 +302,7 @@ export const SupplierProfile = () => {
       >
         <form onSubmit={handleSubmitUpdate} className="space-y-4">
           <p className="text-xs text-slate-500">
-            Submitted changes will be routed to procurement managers for compliance verification before being applied.
+            Submitted changes will be routed to company procurement officers for compliance verification before being applied.
           </p>
 
           <Input

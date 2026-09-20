@@ -297,7 +297,7 @@ export const UserManagement = () => {
                   className="rounded text-blue-600 focus:ring-blue-500 h-4 w-4"
                 />
                 <div>
-                  <span className="text-sm font-semibold text-slate-800 block">ROLE_MANAGER</span>
+                  <span className="text-sm font-semibold text-slate-800 block">Company Evaluator (ROLE_MANAGER)</span>
                   <span className="text-xs text-slate-500">Can view suppliers, evaluate, and view reports</span>
                 </div>
               </label>

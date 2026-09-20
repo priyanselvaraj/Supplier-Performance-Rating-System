@@ -97,7 +97,7 @@ export const Login = () => {
               name="username"
               value={formData.username}
               onChange={handleChange}
-              placeholder="e.g. admin, manager, or supplier_apex"
+              placeholder="e.g. admin, company, or supplier_apex"
               required
               autoFocus
             />

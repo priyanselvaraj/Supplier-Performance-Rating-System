@@ -15,7 +15,7 @@ describe('Login Component Tests', () => {
       </BrowserRouter>
     );
 
-    expect(screen.getByPlaceholderText(/e\.g\. admin, manager, or supplier_apex/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/e\.g\. admin, (company|manager), or supplier_apex/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/••••••••/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
   });

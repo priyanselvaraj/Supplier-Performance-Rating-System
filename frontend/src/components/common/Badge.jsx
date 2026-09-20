@@ -37,11 +37,20 @@ export const Badge = ({ children, variant = 'default', size = 'sm', className = 
     md: 'px-3 py-1 text-sm',
   };
 
+  const formatLabel = (v) => {
+    const val = String(v || '');
+    if (val === 'ROLE_MANAGER' || val === 'MANAGER') return 'COMPANY';
+    if (val === 'ROLE_ADMIN') return 'ADMIN';
+    if (val === 'ROLE_SUPPLIER') return 'SUPPLIER';
+    return val;
+  };
+
   return (
     <span
       className={`inline-flex items-center font-medium rounded-full border ${getVariantStyles(variant)} ${sizes[size] || sizes.sm} ${className}`}
     >
-      {children || variant}
+      {children || formatLabel(variant)}
     </span>
   );
-};export default Badge;
+};
+export default Badge;

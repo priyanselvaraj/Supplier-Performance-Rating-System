@@ -82,7 +82,7 @@ export const SupplierCommunications = () => {
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Procurement Communications & Inquiries</h1>
           <p className="text-sm text-slate-500 mt-0.5">
-            Direct two-way messaging thread with your assigned corporate procurement managers and auditors.
+            Direct two-way messaging thread with your assigned company procurement officers and auditors.
           </p>
         </div>
         <Button
