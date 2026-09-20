@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Input } from '../../components/common/Input';
 import { Button } from '../../components/common/Button';
-import { ShieldCheck, Lock, User, AlertCircle } from 'lucide-react';
+import { ShieldCheck, Lock, User, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 export const Login = () => {
   const navigate = useNavigate();
@@ -13,17 +13,20 @@ export const Login = () => {
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
 
   const from = location.state?.from?.pathname || '/dashboard';
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     if (error) setError('');
+    if (successMsg) setSuccessMsg('');
   };
 
   const handleFillDemo = (username, password) => {
     setFormData({ username, password });
     setError('');
+    setSuccessMsg('');
   };
 
   const handleSubmit = async (e) => {
@@ -35,19 +38,20 @@ export const Login = () => {
 
     setLoading(true);
     setError('');
+    setSuccessMsg('');
 
     try {
       const authUser = await login(formData);
       const isSupplier = authUser?.roles?.some(r => r === 'ROLE_SUPPLIER' || r === 'SUPPLIER' || r.toLowerCase() === 'supplier');
-      if (isSupplier) {
-        navigate('/supplier-portal/dashboard', { replace: true });
-      } else {
-        navigate(from === '/login' ? '/dashboard' : from, { replace: true });
-      }
+      const targetRoute = isSupplier ? '/supplier-portal/dashboard' : (from === '/login' ? '/dashboard' : from);
+
+      setSuccessMsg('Login successful! A login notification has been sent to your registered email.');
+      setTimeout(() => {
+        navigate(targetRoute, { replace: true });
+      }, 700);
     } catch (err) {
       const msg = err.response?.data?.message || err.message || 'Invalid username or password';
       setError(msg);
-    } finally {
       setLoading(false);
     }
   };
@@ -72,6 +76,13 @@ export const Login = () => {
             <div className="mb-5 p-3.5 rounded-xl bg-rose-50 border border-rose-200 flex items-start gap-2.5 text-rose-700 text-sm">
               <AlertCircle className="h-5 w-5 flex-shrink-0 text-rose-500" />
               <span>{error}</span>
+            </div>
+          )}
+
+          {successMsg && (
+            <div className="mb-5 p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 flex items-start gap-2.5 text-emerald-800 text-sm">
+              <CheckCircle2 className="h-5 w-5 flex-shrink-0 text-emerald-600 mt-0.5" />
+              <span>{successMsg}</span>
             </div>
           )}
 

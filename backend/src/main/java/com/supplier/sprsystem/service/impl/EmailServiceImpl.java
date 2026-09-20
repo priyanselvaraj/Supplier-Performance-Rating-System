@@ -176,7 +176,7 @@ public class EmailServiceImpl implements EmailService {
         LocalDateTime timestamp = (loginTime != null) ? loginTime : LocalDateTime.now();
         String loginDate = timestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         String loginTimeStr = timestamp.format(DateTimeFormatter.ofPattern("HH:mm:ss"));
-        String subject = "Login Successful - Supplier Performance Rating System";
+        String subject = "SPRS Login Successful";
         String fullName = (user.getFullName() != null && !user.getFullName().trim().isEmpty()) ? user.getFullName() : user.getUsername();
         String safeIp = (ipAddress != null && !ipAddress.trim().isEmpty()) ? ipAddress.trim() : "Unknown IP";
         String safeAgent = (userAgent != null && !userAgent.trim().isEmpty()) ? userAgent.trim() : "Web Browser / API Client";
@@ -205,24 +205,25 @@ public class EmailServiceImpl implements EmailService {
                             <h1>Supplier Performance Rating System</h1>
                         </div>
                         <div class="content">
-                            <h2>Hello, %s</h2>
-                            <p>Your <strong>Supplier Performance Rating System</strong> account was successfully logged in.</p>
+                            <h2>Hello %s,</h2>
+                            <p>Your login to the <strong>Supplier Performance Rating System</strong> was successful.</p>
                             
                             <div class="alert-box">
+                                <div class="card-item"><strong>Login Email:</strong> %s</div>
                                 <div class="card-item"><strong>Login Date:</strong> %s</div>
                                 <div class="card-item"><strong>Login Time:</strong> %s</div>
-                                <div class="card-item"><strong>Application:</strong> Supplier Performance Rating System</div>
-                                <div class="card-item"><strong>Account:</strong> %s (%s)</div>
+                                <div class="card-item"><strong>Username:</strong> %s</div>
                                 <div class="card-item"><strong>IP Address:</strong> %s</div>
                                 <div class="card-item"><strong>Device / Browser:</strong> %s</div>
                             </div>
 
                             <div class="warning-box">
-                                <strong>Security Warning:</strong> If you did not perform this login, please contact the administrator.
+                                <strong>Security Notice:</strong> If you did not perform this login, please contact the SPRS administrator immediately.
                             </div>
 
                             <p style="margin-top: 24px; line-height: 1.5;">
                                 Regards,<br>
+                                Supplier Performance Rating System<br>
                                 <strong>SPRS Team</strong>
                             </p>
                         </div>
@@ -234,22 +235,22 @@ public class EmailServiceImpl implements EmailService {
                 </html>
                 """.formatted(
                 fullName,
+                user.getEmail(),
                 loginDate,
                 loginTimeStr,
                 user.getUsername(),
-                user.getEmail(),
                 safeIp,
                 safeAgent,
                 LocalDateTime.now().getYear()
         );
 
-        String plainText = "Hello,\n\n"
-                + "Your Supplier Performance Rating System account was successfully logged in.\n\n"
+        String plainText = "Hello " + fullName + ",\n\n"
+                + "Your login to the Supplier Performance Rating System was successful.\n\n"
+                + "Login Email: " + user.getEmail() + "\n"
                 + "Login Date: " + loginDate + "\n"
-                + "Login Time: " + loginTimeStr + "\n"
-                + "Application: Supplier Performance Rating System\n\n"
-                + "If you did not perform this login, please contact the administrator.\n\n"
-                + "Regards,\nSPRS Team";
+                + "Login Time: " + loginTimeStr + "\n\n"
+                + "If you did not perform this login, please contact the SPRS administrator immediately.\n\n"
+                + "Regards,\nSupplier Performance Rating System\nSPRS Team";
 
         sendEmail(user.getEmail(), subject, html, plainText);
     }

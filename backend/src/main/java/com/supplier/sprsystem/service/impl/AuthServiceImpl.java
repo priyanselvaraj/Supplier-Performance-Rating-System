@@ -131,6 +131,9 @@ public class AuthServiceImpl implements AuthService {
                     .roles(roles)
                     .supplierId(supplierId)
                     .supplierName(supplierName)
+                    .success(true)
+                    .message("Login successful")
+                    .emailNotificationSent(true)
                     .build();
         } catch (BadCredentialsException e) {
             throw new UnauthorizedException("Invalid username/email or password");

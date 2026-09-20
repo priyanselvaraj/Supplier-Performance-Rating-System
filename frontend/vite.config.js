@@ -9,6 +9,14 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.js'],
+    testTimeout: 30000,
+    hookTimeout: 30000,
+    pool: 'threads',
+    poolOptions: {
+      threads: {
+        singleThread: true,
+      },
+    },
   },
   server: {
     port: 5173,

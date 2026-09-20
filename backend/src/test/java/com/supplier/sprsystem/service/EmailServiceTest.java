@@ -73,7 +73,7 @@ public class EmailServiceTest {
     }
 
     @Test
-    @DisplayName("Test sending login alert email via SMTP sends valid MimeMessage")
+    @DisplayName("Test sending login alert email via SMTP sends valid MimeMessage with SPRS Login Successful subject")
     void testSendLoginAlertEmail_LiveSmtp() {
         MimeMessage mimeMessage = new MimeMessage(Session.getInstance(new Properties()));
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
@@ -91,7 +91,7 @@ public class EmailServiceTest {
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
         doThrow(new RuntimeException("SMTP Connection timed out")).when(mailSender).send(any(MimeMessage.class));
 
-        assertDoesNotThrow(() -> emailService.sendEmail("john@example.com", "SPRS Login Notification", "<p>Body</p>", "Fallback text"));
+        assertDoesNotThrow(() -> emailService.sendEmail("john@example.com", "SPRS Login Successful", "<p>Body</p>", "Fallback text"));
     }
 
     @Test

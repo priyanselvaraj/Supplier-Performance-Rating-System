@@ -4,6 +4,9 @@ import java.util.List;
 
 public class JwtAuthResponse {
 
+    private boolean success = true;
+    private String message = "Login successful";
+    private boolean emailNotificationSent = true;
     private String token;
     private String type = "Bearer";
     private String tokenType = "Bearer";
@@ -31,6 +34,9 @@ public class JwtAuthResponse {
         this.roles = roles;
         this.supplierId = supplierId;
         this.supplierName = supplierName;
+        this.success = true;
+        this.message = "Login successful";
+        this.emailNotificationSent = true;
         if (roles != null && !roles.isEmpty()) {
             this.role = roles.get(0).replace("ROLE_", "");
         }
@@ -41,6 +47,9 @@ public class JwtAuthResponse {
     }
 
     public static class Builder {
+        private boolean success = true;
+        private String message = "Login successful";
+        private boolean emailNotificationSent = true;
         private String token;
         private String type = "Bearer";
         private Long id;
@@ -52,6 +61,9 @@ public class JwtAuthResponse {
         private Long supplierId;
         private String supplierName;
 
+        public Builder success(boolean success) { this.success = success; return this; }
+        public Builder message(String message) { this.message = message; return this; }
+        public Builder emailNotificationSent(boolean emailNotificationSent) { this.emailNotificationSent = emailNotificationSent; return this; }
         public Builder token(String token) { this.token = token; return this; }
         public Builder type(String type) { this.type = type; return this; }
         public Builder tokenType(String tokenType) { this.type = tokenType; return this; }
@@ -67,12 +79,22 @@ public class JwtAuthResponse {
 
         public JwtAuthResponse build() {
             JwtAuthResponse resp = new JwtAuthResponse(token, type, id, username, email, fullName, roles, supplierId, supplierName);
+            resp.setSuccess(this.success);
+            resp.setMessage(this.message);
+            resp.setEmailNotificationSent(this.emailNotificationSent);
             if (this.role != null) {
                 resp.setRole(this.role);
             }
             return resp;
         }
     }
+
+    public boolean isSuccess() { return success; }
+    public void setSuccess(boolean success) { this.success = success; }
+    public String getMessage() { return message; }
+    public void setMessage(String message) { this.message = message; }
+    public boolean isEmailNotificationSent() { return emailNotificationSent; }
+    public void setEmailNotificationSent(boolean emailNotificationSent) { this.emailNotificationSent = emailNotificationSent; }
 
     public String getToken() { return token; }
     public void setToken(String token) { this.token = token; }

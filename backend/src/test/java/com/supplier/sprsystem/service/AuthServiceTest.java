@@ -201,6 +201,9 @@ public class AuthServiceTest {
         JwtAuthResponse response = authService.authenticateUser(loginRequest);
 
         assertNotNull(response);
+        assertTrue(response.isSuccess());
+        assertEquals("Login successful", response.getMessage());
+        assertTrue(response.isEmailNotificationSent());
         assertEquals("mockJwtToken123", response.getToken());
         assertEquals("Bearer", response.getTokenType());
         assertEquals("john_doe", response.getUsername());
