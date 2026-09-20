@@ -4,17 +4,9 @@
 
 @layer base {
   body {
-    @apply bg-[#fbfaf6] text-stone-900 antialiased;
+    @apply bg-slate-50 text-slate-900 antialiased;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
-}
-
-.font-serif-display {
-  font-family: 'Fraunces', 'Playfair Display', Georgia, serif;
-}
-
-.font-mono-tag {
-  font-family: 'Space Grotesk', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 /* Custom scrollbar */
