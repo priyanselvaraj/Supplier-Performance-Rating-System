@@ -11,7 +11,7 @@ spring:
   datasource:
     url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:supplier_rating_db}?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
     username: "${DB_USERNAME:root}"
-    password: "${DB_PASSWORD:MyNewPass}"
+    password: "${DB_PASSWORD:root}"
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       pool-name: SPRS-HikariCP-Pool
@@ -51,7 +51,7 @@ app:
     secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
     expiration-ms: ${JWT_EXPIRATION_MS:86400000} # 24 hours
   cors:
-    allowed-origins: ${ALLOWED_ORIGINS:http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173,http://localhost:80,http://localhost}
+    allowed-origins: ${ALLOWED_ORIGINS:http://localhost:5173,http://localhost:5174,http://localhost:5175,http://localhost:3000,http://127.0.0.1:5173,http://127.0.0.1:5174,http://localhost:80,http://localhost}
   seed:
     enabled: ${APP_SEED_ENABLED:true}
   mail:
