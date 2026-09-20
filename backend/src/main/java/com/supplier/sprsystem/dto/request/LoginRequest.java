@@ -61,6 +61,13 @@ public class LoginRequest {
         return email != null ? email.trim() : "";
     }
 
+    public void setUsernameOrEmail(String usernameOrEmail) {
+        if (usernameOrEmail != null && !usernameOrEmail.trim().isEmpty()) {
+            this.username = usernameOrEmail.trim();
+            this.email = usernameOrEmail.trim();
+        }
+    }
+
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
 }
