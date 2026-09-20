@@ -45,7 +45,12 @@ export const Login = () => {
       const isSupplier = authUser?.roles?.some(r => r === 'ROLE_SUPPLIER' || r === 'SUPPLIER' || r.toLowerCase() === 'supplier');
       const targetRoute = isSupplier ? '/supplier-portal/dashboard' : (from === '/login' ? '/dashboard' : from);
 
-      setSuccessMsg('Login successful! A login notification has been sent to your registered email.');
+      if (authUser?.emailNotificationSent === false) {
+        setSuccessMsg("Login successful. We couldn't send the login notification email right now.");
+      } else {
+        setSuccessMsg("Login successful! A login notification has been sent to your registered email.");
+      }
+
       setTimeout(() => {
         navigate(targetRoute, { replace: true });
       }, 700);

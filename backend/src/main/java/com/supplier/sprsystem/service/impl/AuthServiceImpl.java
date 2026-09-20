@@ -26,6 +26,8 @@ import com.supplier.sprsystem.service.EmailService;
 import com.supplier.sprsystem.service.NotificationService;
 import com.supplier.sprsystem.service.SmsService;
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -49,6 +51,7 @@ import java.util.stream.Collectors;
 @Service
 public class AuthServiceImpl implements AuthService {
 
+    private static final Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     private final AuthenticationManager authenticationManager;
@@ -117,7 +120,10 @@ public class AuthServiceImpl implements AuthService {
             String supplierName = user.getSupplier() != null ? user.getSupplier().getName() : null;
 
             // Dispatch Login Security Notifications (In-App, Email, SMS)
-            dispatchLoginNotifications(user);
+            boolean emailNotificationSent = dispatchLoginNotifications(user);
+            String message = emailNotificationSent
+                    ? "Login successful"
+                    : "Login successful, but the email notification could not be sent.";
 
             return JwtAuthResponse.builder()
                     .token(jwt)
@@ -132,8 +138,8 @@ public class AuthServiceImpl implements AuthService {
                     .supplierId(supplierId)
                     .supplierName(supplierName)
                     .success(true)
-                    .message("Login successful")
-                    .emailNotificationSent(true)
+                    .message(message)
+                    .emailNotificationSent(emailNotificationSent)
                     .build();
         } catch (BadCredentialsException e) {
             throw new UnauthorizedException("Invalid username/email or password");
@@ -313,8 +319,8 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
-    private void dispatchLoginNotifications(User user) {
-        if (user == null) return;
+    private boolean dispatchLoginNotifications(User user) {
+        if (user == null) return false;
 
         String[] meta = getClientRequestMetadata();
         String ipAddress = meta[0];
@@ -322,6 +328,7 @@ public class AuthServiceImpl implements AuthService {
         LocalDateTime now = LocalDateTime.now();
         String formattedTime = now.format(DATE_FORMATTER);
 
+        // In-App Notification
         try {
             notificationService.createNotification(
                     user.getId(),
@@ -333,20 +340,49 @@ public class AuthServiceImpl implements AuthService {
                     user.getId()
             );
         } catch (Exception e) {
-            // Non-blocking notification dispatch
+            // Non-blocking in-app notification dispatch
         }
 
+        // Email Notification with safe error handling
+        boolean emailNotificationSent = false;
         try {
-            emailService.sendLoginAlertEmail(user, ipAddress, userAgent, now);
-        } catch (Exception e) {
-            // Non-blocking email dispatch
+            emailNotificationSent = emailService.sendLoginAlertEmail(user, ipAddress, userAgent, now);
+        } catch (Exception ex) {
+            emailNotificationSent = false;
+            // Log only safe technical message - never log passwords, SMTP passwords, JWTs, or email credentials
+            logger.error("Failed to send login notification email to <{}>: {}", user.getEmail(), ex.getMessage());
         }
 
+        // Record Audit / Notification Status: LOGIN_EMAIL_SENT or LOGIN_EMAIL_FAILED
+        try {
+            String auditStatus = emailNotificationSent ? "LOGIN_EMAIL_SENT" : "LOGIN_EMAIL_FAILED";
+            String auditTitle = emailNotificationSent ? "Login Email Notification Sent" : "Login Email Notification Failed";
+            String auditMessage = emailNotificationSent
+                    ? "Login notification email successfully dispatched to " + user.getEmail() + " at " + formattedTime
+                    : "Login notification email could not be sent to " + user.getEmail() + " at " + formattedTime + " (Delivery service unavailable).";
+            NotificationPriority priority = emailNotificationSent ? NotificationPriority.LOW : NotificationPriority.MEDIUM;
+
+            notificationService.createNotification(
+                    user.getId(),
+                    auditTitle,
+                    auditMessage,
+                    NotificationType.SECURITY,
+                    priority,
+                    auditStatus,
+                    user.getId()
+            );
+        } catch (Exception e) {
+            // Non-blocking audit recording
+        }
+
+        // SMS Notification
         try {
             smsService.sendLoginAlertSms(user, ipAddress, now);
         } catch (Exception e) {
             // Non-blocking SMS dispatch
         }
+
+        return emailNotificationSent;
     }
 
     private String[] getClientRequestMetadata() {

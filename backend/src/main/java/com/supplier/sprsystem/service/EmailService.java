@@ -7,11 +7,11 @@ import java.time.LocalDateTime;
 
 public interface EmailService {
 
-    void sendEmail(String toEmail, String subject, String bodyHtml, String plainTextFallback);
+    boolean sendEmail(String toEmail, String subject, String bodyHtml, String plainTextFallback);
 
     void sendWelcomeEmail(User user);
 
-    void sendLoginAlertEmail(User user, String ipAddress, String userAgent, LocalDateTime loginTime);
+    boolean sendLoginAlertEmail(User user, String ipAddress, String userAgent, LocalDateTime loginTime);
 
     void sendGeneralNotificationEmail(User user, String title, String message, NotificationType type);
 }

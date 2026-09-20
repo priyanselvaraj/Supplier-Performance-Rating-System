@@ -79,19 +79,21 @@ public class EmailServiceTest {
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
 
         LocalDateTime fixedTime = LocalDateTime.of(2026, 9, 7, 14, 30, 0);
-        assertDoesNotThrow(() -> emailService.sendLoginAlertEmail(sampleUser, "192.168.1.100", "Mozilla/5.0", fixedTime));
+        boolean result = emailService.sendLoginAlertEmail(sampleUser, "192.168.1.100", "Mozilla/5.0", fixedTime);
 
+        assertTrue(result);
         verify(mailSender, times(1)).send(mimeMessage);
     }
 
     @Test
-    @DisplayName("Test SMTP failure during email dispatch is caught safely without throwing exception")
+    @DisplayName("Test SMTP failure during email dispatch is caught safely and returns false")
     void testSendEmail_SmtpExceptionHandledSafely() {
         MimeMessage mimeMessage = new MimeMessage(Session.getInstance(new Properties()));
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
         doThrow(new RuntimeException("SMTP Connection timed out")).when(mailSender).send(any(MimeMessage.class));
 
-        assertDoesNotThrow(() -> emailService.sendEmail("john@example.com", "SPRS Login Successful", "<p>Body</p>", "Fallback text"));
+        boolean result = emailService.sendEmail("john@example.com", "SPRS Login Successful", "<p>Body</p>", "Fallback text");
+        assertFalse(result);
     }
 
     @Test

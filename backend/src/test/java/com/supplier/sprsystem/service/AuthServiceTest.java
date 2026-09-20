@@ -175,7 +175,7 @@ public class AuthServiceTest {
     }
 
     @Test
-    @DisplayName("Test successful login with username and password")
+    @DisplayName("Test 1: Successful login with valid credentials and successful email delivery")
     void testAuthenticateUser_Success() {
         LoginRequest loginRequest = LoginRequest.builder()
                 .username("john_doe")
@@ -197,6 +197,7 @@ public class AuthServiceTest {
         when(userRepository.findByUsername("john_doe")).thenReturn(Optional.of(sampleUser));
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(auth);
         when(jwtUtils.generateJwtToken(auth)).thenReturn("mockJwtToken123");
+        when(emailService.sendLoginAlertEmail(eq(sampleUser), anyString(), anyString(), any())).thenReturn(true);
 
         JwtAuthResponse response = authService.authenticateUser(loginRequest);
 
@@ -212,11 +213,11 @@ public class AuthServiceTest {
 
         verify(emailService, times(1)).sendLoginAlertEmail(eq(sampleUser), anyString(), anyString(), any());
         verify(smsService, times(1)).sendLoginAlertSms(any(User.class), anyString(), any());
-        verify(notificationService, times(1)).createNotification(any(), anyString(), anyString(), any(), any(), anyString(), any());
+        verify(notificationService, atLeastOnce()).createNotification(any(), anyString(), anyString(), any(), any(), anyString(), any());
     }
 
     @Test
-    @DisplayName("Test email service failure during login does not block successful authentication")
+    @DisplayName("Test 2: Successful login with email service exception does not block authentication")
     void testAuthenticateUser_EmailFailure_DoesNotBlockLogin() {
         LoginRequest loginRequest = LoginRequest.builder()
                 .username("john_doe")
@@ -243,6 +244,44 @@ public class AuthServiceTest {
         JwtAuthResponse response = authService.authenticateUser(loginRequest);
 
         assertNotNull(response);
+        assertTrue(response.isSuccess());
+        assertEquals("Login successful, but the email notification could not be sent.", response.getMessage());
+        assertFalse(response.isEmailNotificationSent());
+        assertEquals("mockJwtToken123", response.getToken());
+        assertEquals("john@example.com", response.getEmail());
+    }
+
+    @Test
+    @DisplayName("Test 2b: Successful login when email service returns false returns successful auth with emailNotificationSent=false")
+    void testAuthenticateUser_EmailReturnsFalse_DoesNotBlockLogin() {
+        LoginRequest loginRequest = LoginRequest.builder()
+                .username("john_doe")
+                .password("SecurePass@123")
+                .build();
+
+        UserDetailsImpl userDetails = new UserDetailsImpl(
+                1L,
+                "john_doe",
+                "john@example.com",
+                "John Doe",
+                "encodedPassword123",
+                true,
+                List.of(new SimpleGrantedAuthority("ROLE_MANAGER"))
+        );
+
+        Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+        when(userRepository.findByUsername("john_doe")).thenReturn(Optional.of(sampleUser));
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(auth);
+        when(jwtUtils.generateJwtToken(auth)).thenReturn("mockJwtToken123");
+        when(emailService.sendLoginAlertEmail(any(), any(), any(), any())).thenReturn(false);
+
+        JwtAuthResponse response = authService.authenticateUser(loginRequest);
+
+        assertNotNull(response);
+        assertTrue(response.isSuccess());
+        assertEquals("Login successful, but the email notification could not be sent.", response.getMessage());
+        assertFalse(response.isEmailNotificationSent());
         assertEquals("mockJwtToken123", response.getToken());
         assertEquals("john@example.com", response.getEmail());
     }

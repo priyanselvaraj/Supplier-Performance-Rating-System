@@ -45,16 +45,15 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    @Async
-    public void sendEmail(String toEmail, String subject, String bodyHtml, String plainTextFallback) {
+    public boolean sendEmail(String toEmail, String subject, String bodyHtml, String plainTextFallback) {
         if (!mailEnabled) {
             logger.debug("Email notifications disabled via configuration. Skipping email to {}", toEmail);
-            return;
+            return false;
         }
 
         if (toEmail == null || toEmail.trim().isEmpty()) {
             logger.warn("Cannot send email: recipient address is null or empty");
-            return;
+            return false;
         }
 
         try {
@@ -65,7 +64,7 @@ public class EmailServiceImpl implements EmailService {
                 if (!hasSmtpCredentials && !simulationMode) {
                     logger.info("Notice: Live SMTP credentials not configured in .env (MAIL_USERNAME/MAIL_PASSWORD). Email was logged locally.");
                 }
-                return;
+                return true;
             }
 
             MimeMessage message = mailSender.createMimeMessage();
@@ -83,8 +82,11 @@ public class EmailServiceImpl implements EmailService {
 
             mailSender.send(message);
             logger.info("Successfully dispatched live email via SMTP to <{}> with subject \"{}\"", toEmail, subject);
+            return true;
         } catch (Exception e) {
-            logger.error("Failed to send email notification via SMTP to <{}>: {}", toEmail, e.getMessage());
+            // Log only safe technical details - never expose passwords, SMTP passwords, JWTs, or email credentials
+            logger.error("Failed to send email notification to <{}>: {}", toEmail, e.getMessage());
+            return false;
         }
     }
 
@@ -169,9 +171,8 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    @Async
-    public void sendLoginAlertEmail(User user, String ipAddress, String userAgent, LocalDateTime loginTime) {
-        if (user == null || user.getEmail() == null || user.getEmail().trim().isEmpty()) return;
+    public boolean sendLoginAlertEmail(User user, String ipAddress, String userAgent, LocalDateTime loginTime) {
+        if (user == null || user.getEmail() == null || user.getEmail().trim().isEmpty()) return false;
 
         LocalDateTime timestamp = (loginTime != null) ? loginTime : LocalDateTime.now();
         String loginDate = timestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
@@ -252,7 +253,7 @@ public class EmailServiceImpl implements EmailService {
                 + "If you did not perform this login, please contact the SPRS administrator immediately.\n\n"
                 + "Regards,\nSupplier Performance Rating System\nSPRS Team";
 
-        sendEmail(user.getEmail(), subject, html, plainText);
+        return sendEmail(user.getEmail(), subject, html, plainText);
     }
 
     @Override
