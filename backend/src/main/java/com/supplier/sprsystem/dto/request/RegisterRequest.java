@@ -31,7 +31,6 @@ public class RegisterRequest {
     @Size(max = 100, message = "Full name cannot exceed 100 characters")
     private String fullName;
 
-    @NotBlank(message = "Phone number is required")
     @Size(max = 20, message = "Phone number cannot exceed 20 characters")
     private String phone;
 
@@ -121,6 +120,8 @@ public class RegisterRequest {
     public void setConfirmPassword(String confirmPassword) { this.confirmPassword = confirmPassword; }
     public String getFullName() { return fullName; }
     public void setFullName(String fullName) { this.fullName = fullName; }
+    public String getName() { return fullName; }
+    public void setName(String name) { if (this.fullName == null || this.fullName.isEmpty()) this.fullName = name; }
     public String getPhone() { return phone; }
     public void setPhone(String phone) { this.phone = phone; }
     public String getPhoneNumber() { return phone; }
