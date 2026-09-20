@@ -1,0 +1,48 @@
+﻿services:
+  # 1. Spring Boot Backend Web Service
+  - type: web
+    name: sprs-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    region: oregon
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: PORT
+        value: 8080
+      - key: DB_HOST
+        value: your-mysql-host.example.com
+      - key: DB_PORT
+        value: 3306
+      - key: DB_NAME
+        value: supplier_rating_db
+      - key: DB_USERNAME
+        value: root
+      - key: DB_PASSWORD
+        value: RootSecret@2026
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRATION_MS
+        value: 86400000
+      - key: ALLOWED_ORIGINS
+        value: "*"
+
+  # 2. React Frontend Static Site
+  - type: web
+    name: sprs-frontend
+    runtime: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    rootDir: frontend
+    plan: free
+    region: oregon
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        value: https://sprs-backend.onrender.com/api/v1

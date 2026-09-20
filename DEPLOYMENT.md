@@ -200,3 +200,76 @@ npm run build
 - [x] **Input Validation**: Jakarta Validation (`@Valid`, `@NotBlank`, `@Size`, `@Min`, `@Max`) active on all controller endpoints.
 - [x] **Zero Secrets in VCS**: `.gitignore` configured to exclude `.env`, `.env.*`, and credentials.
 - [x] **Production Validator**: `ProductionEnvironmentValidator` fails fast if weak or default keys are used in production.
+
+---
+
+## ☁️ 7. Cloud Deployment Options
+
+### 🚀 Option A: Render.com (Recommended Free/Easy Full Stack)
+
+Render connects directly to your GitHub repository:
+`https://github.com/priyanselvaraj/Supplier-Performance-Rating-System.git`
+
+#### Step 1: Create a Free MySQL Database on Cloud (Aiven / Render / Railway)
+1. Go to [Aiven.io](https://aiven.io/) or [Clever Cloud](https://www.clever-cloud.com/) or [Railway.app](https://railway.app/).
+2. Create a free **MySQL** database service.
+3. Copy the connection host, port, database name (`supplier_rating_db`), user, and password.
+
+#### Step 2: Deploy Backend Web Service on Render
+1. Log in to [Render.com](https://render.com/) and click **New +** -> **Web Service**.
+2. Connect your GitHub repository: `priyanselvaraj/Supplier-Performance-Rating-System`.
+3. Set configuration:
+   - **Root Directory**: `backend`
+   - **Environment**: `Docker` (or Java)
+   - **Dockerfile Path**: `./Dockerfile` (or build command `mvn clean package -DskipTests`, start command `java -jar target/sprsystem-1.0.0.jar`)
+4. Add **Environment Variables**:
+   - `SPRING_PROFILES_ACTIVE`: `prod`
+   - `DB_HOST`: *(Your cloud MySQL host)*
+   - `DB_PORT`: `3306`
+   - `DB_NAME`: `supplier_rating_db`
+   - `DB_USERNAME`: *(Your MySQL user)*
+   - `DB_PASSWORD`: *(Your MySQL password)*
+   - `JWT_SECRET`: `404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970`
+   - `ALLOWED_ORIGINS`: `*`
+5. Click **Create Web Service**. Your backend will deploy with a URL like `https://sprs-backend.onrender.com`.
+
+#### Step 3: Deploy Frontend on Render / Vercel
+1. On Render, click **New +** -> **Static Site**.
+2. Connect the same repository.
+3. Configure:
+   - **Root Directory**: `frontend`
+   - **Build Command**: `npm install && npm run build`
+   - **Publish Directory**: `dist`
+4. Add **Environment Variable**:
+   - `VITE_API_URL`: `https://sprs-backend.onrender.com/api/v1`
+5. Click **Create Static Site**. Your application will be live on `https://sprs-frontend.onrender.com`!
+
+---
+
+### 🚂 Option B: Railway.app (1-Click Deployment)
+
+1. Go to [Railway.app](https://railway.app/) and create a new project.
+2. Select **Provision MySQL** (adds a cloud MySQL instance in 1 click).
+3. Click **Add Service** -> **GitHub Repo** -> `priyanselvaraj/Supplier-Performance-Rating-System`.
+4. Set root directory to `/backend` and map database environment variables (`${{MySQL.MYSQLHOST}}`, etc.).
+5. Add a second service from GitHub for `/frontend` and set `VITE_API_URL` to backend's public domain.
+
+---
+
+### ☁️ Option C: Cloud Linux VM (AWS EC2 / GCP / DigitalOcean)
+
+1. Launch an Ubuntu 22.04 / 24.04 VM.
+2. Install Docker & Git:
+   ```bash
+   sudo apt-get update && sudo apt-get install -y git docker.io docker-compose-v2
+   ```
+3. Clone the repository:
+   ```bash
+   git clone https://github.com/priyanselvaraj/Supplier-Performance-Rating-System.git
+   cd Supplier-Performance-Rating-System
+   ```
+4. Start the stack in background:
+   ```bash
+   docker compose -f deploy/docker-compose.prod.yml up -d --build
+   ```
+5. Open your cloud server's Public IP in your browser (`http://<YOUR_SERVER_IP>`).
