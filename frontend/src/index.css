@@ -9,6 +9,14 @@
   }
 }
 
+.font-serif-display {
+  font-family: 'Fraunces', 'Playfair Display', Georgia, serif;
+}
+
+.font-mono-tag {
+  font-family: 'Space Grotesk', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
