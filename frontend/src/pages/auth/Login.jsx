@@ -141,7 +141,7 @@ export const Login = () => {
                 onClick={() => handleFillDemo('manager', 'Manager@12345')}
                 className="p-2 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors text-left border border-slate-200"
               >
-                <div className="font-bold text-indigo-600 text-[11px]">Manager</div>
+                <div className="font-bold text-indigo-600 text-[11px]">Company</div>
                 <div className="text-[9px] text-slate-500 truncate">manager</div>
               </button>
               <button

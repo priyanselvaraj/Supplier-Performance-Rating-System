@@ -30,7 +30,7 @@ describe('Login Component Tests', () => {
     );
 
     expect(screen.getByText('Admin')).toBeInTheDocument();
-    expect(screen.getByText('Manager')).toBeInTheDocument();
+    expect(screen.getByText('Company')).toBeInTheDocument();
     expect(screen.getByText('Supplier')).toBeInTheDocument();
     expect(screen.getByText('Apex Micro')).toBeInTheDocument();
   });
