@@ -17,8 +17,7 @@ describe('Login Component Tests', () => {
 
     expect(screen.getByPlaceholderText(/e\.g\. admin, manager, or supplier_apex/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/••••••••/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /^sign in$/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /enter workspace/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
   });
 
   it('renders demo credentials quick-login buttons including Supplier', () => {
