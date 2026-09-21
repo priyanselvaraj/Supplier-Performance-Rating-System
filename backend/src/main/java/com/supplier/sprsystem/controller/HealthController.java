@@ -15,7 +15,7 @@ import java.util.Map;
 @Tag(name = "Health", description = "Application health and status monitoring")
 public class HealthController {
 
-    @GetMapping(value = {"/api/health", "/api/v1/health"})
+    @GetMapping(value = {"/", "/api/health", "/api/v1/health"})
     @Operation(summary = "Check application health and operational status")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getHealthStatus() {
         Map<String, Object> healthInfo = new HashMap<>();
