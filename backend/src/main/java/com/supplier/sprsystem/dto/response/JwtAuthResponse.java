@@ -4,6 +4,7 @@ import java.util.List;
 
 public class JwtAuthResponse {
 
+    private boolean authenticated = true;
     private boolean success = true;
     private String message = "Login successful";
     private boolean emailNotificationSent = true;
@@ -34,6 +35,7 @@ public class JwtAuthResponse {
         this.roles = roles;
         this.supplierId = supplierId;
         this.supplierName = supplierName;
+        this.authenticated = true;
         this.success = true;
         this.message = "Login successful";
         this.emailNotificationSent = true;
@@ -47,6 +49,7 @@ public class JwtAuthResponse {
     }
 
     public static class Builder {
+        private boolean authenticated = true;
         private boolean success = true;
         private String message = "Login successful";
         private boolean emailNotificationSent = true;
@@ -61,6 +64,7 @@ public class JwtAuthResponse {
         private Long supplierId;
         private String supplierName;
 
+        public Builder authenticated(boolean authenticated) { this.authenticated = authenticated; return this; }
         public Builder success(boolean success) { this.success = success; return this; }
         public Builder message(String message) { this.message = message; return this; }
         public Builder emailNotificationSent(boolean emailNotificationSent) { this.emailNotificationSent = emailNotificationSent; return this; }
@@ -79,6 +83,7 @@ public class JwtAuthResponse {
 
         public JwtAuthResponse build() {
             JwtAuthResponse resp = new JwtAuthResponse(token, type, id, username, email, fullName, roles, supplierId, supplierName);
+            resp.setAuthenticated(this.authenticated);
             resp.setSuccess(this.success);
             resp.setMessage(this.message);
             resp.setEmailNotificationSent(this.emailNotificationSent);
@@ -89,6 +94,8 @@ public class JwtAuthResponse {
         }
     }
 
+    public boolean isAuthenticated() { return authenticated; }
+    public void setAuthenticated(boolean authenticated) { this.authenticated = authenticated; }
     public boolean isSuccess() { return success; }
     public void setSuccess(boolean success) { this.success = success; }
     public String getMessage() { return message; }

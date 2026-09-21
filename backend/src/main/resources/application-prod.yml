@@ -63,7 +63,7 @@ app:
     enabled: ${APP_SEED_ENABLED:false}
   mail:
     enabled: ${MAIL_ENABLED:true}
-    from: ${MAIL_FROM:noreply@sprsystem.com}
+    from: ${MAIL_FROM:${MAIL_USERNAME:noreply@sprsystem.com}}
     from-name: ${MAIL_FROM_NAME:SPRS Notification Center}
     simulation-mode: ${MAIL_SIMULATION_MODE:false}
   sms:

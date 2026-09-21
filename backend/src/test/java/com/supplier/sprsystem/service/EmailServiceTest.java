@@ -73,7 +73,7 @@ public class EmailServiceTest {
     }
 
     @Test
-    @DisplayName("Test sending login alert email via SMTP sends valid MimeMessage with SPRS Login Successful subject")
+    @DisplayName("Test sending login alert email via SMTP sends valid MimeMessage with SPRS Login Notification subject")
     void testSendLoginAlertEmail_LiveSmtp() {
         MimeMessage mimeMessage = new MimeMessage(Session.getInstance(new Properties()));
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
@@ -86,13 +86,66 @@ public class EmailServiceTest {
     }
 
     @Test
+    @DisplayName("Test sender, recipient, and subject matching: From=sender@gmail.com, To=user@gmail.com, Subject=SPRS Login Notification")
+    void testSendLoginAlertEmail_SenderRecipientSubject() throws Exception {
+        ReflectionTestUtils.setField(emailService, "springMailUsername", "sender@gmail.com");
+        ReflectionTestUtils.setField(emailService, "mailFrom", "sender@gmail.com");
+        ReflectionTestUtils.setField(emailService, "mailFromName", "SPRS Notification Center");
+
+        User registeredUser = User.builder()
+                .id(2L)
+                .username("testuser")
+                .email("user@gmail.com")
+                .fullName("Test User")
+                .build();
+
+        MimeMessage mimeMessage = new MimeMessage(Session.getInstance(new Properties()));
+        when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+
+        LocalDateTime fixedTime = LocalDateTime.of(2026, 9, 21, 10, 0, 0);
+        boolean result = emailService.sendLoginAlertEmail(registeredUser, "192.168.1.50", "Chrome/120.0", fixedTime);
+
+        assertTrue(result);
+        verify(mailSender).send(mimeMessage);
+
+        assertEquals("SPRS Login Notification", mimeMessage.getSubject());
+        assertEquals("user@gmail.com", mimeMessage.getAllRecipients()[0].toString());
+        assertEquals("sender@gmail.com", ((jakarta.mail.internet.InternetAddress) mimeMessage.getFrom()[0]).getAddress());
+    }
+
+    @Test
+    @DisplayName("Test MAIL_FROM falls back to MAIL_USERNAME when MAIL_FROM is empty")
+    void testSendLoginAlertEmail_FallbackToMailUsername() throws Exception {
+        ReflectionTestUtils.setField(emailService, "springMailUsername", "sender@gmail.com");
+        ReflectionTestUtils.setField(emailService, "mailFrom", "");
+        ReflectionTestUtils.setField(emailService, "mailFromName", "");
+
+        User registeredUser = User.builder()
+                .id(3L)
+                .username("anotheruser")
+                .email("user@gmail.com")
+                .fullName("Another User")
+                .build();
+
+        MimeMessage mimeMessage = new MimeMessage(Session.getInstance(new Properties()));
+        when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+
+        LocalDateTime fixedTime = LocalDateTime.of(2026, 9, 21, 10, 0, 0);
+        boolean result = emailService.sendLoginAlertEmail(registeredUser, "192.168.1.50", "Chrome/120.0", fixedTime);
+
+        assertTrue(result);
+        assertEquals("sender@gmail.com", ((jakarta.mail.internet.InternetAddress) mimeMessage.getFrom()[0]).getAddress());
+        assertEquals("user@gmail.com", mimeMessage.getAllRecipients()[0].toString());
+    }
+
+    @Test
     @DisplayName("Test SMTP failure during email dispatch is caught safely and returns false")
     void testSendEmail_SmtpExceptionHandledSafely() {
         MimeMessage mimeMessage = new MimeMessage(Session.getInstance(new Properties()));
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
         doThrow(new RuntimeException("SMTP Connection timed out")).when(mailSender).send(any(MimeMessage.class));
 
-        boolean result = emailService.sendEmail("john@example.com", "SPRS Login Successful", "<p>Body</p>", "Fallback text");
+        boolean result = emailService.sendEmail("john@example.com", "SPRS Login Notification", "<p>Body</p>", "Fallback text");
         assertFalse(result);
     }
 
