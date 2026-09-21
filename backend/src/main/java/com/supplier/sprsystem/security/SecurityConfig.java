@@ -74,7 +74,9 @@ public class SecurityConfig {
                 "http://localhost:*",
                 "http://127.0.0.1:*",
                 "https://localhost:*",
-                "https://127.0.0.1:*"
+                "https://127.0.0.1:*",
+                "https://*.vercel.app",
+                "https://*.onrender.com"
         ));
         for (String origin : allowedOrigins.split(",")) {
             String trimmed = origin.trim();
@@ -107,7 +109,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Public Endpoints
                         .requestMatchers("/api/v1/auth/**").permitAll()
-                        .requestMatchers("/api/health", "/api/v1/health", "/actuator/health", "/actuator/info").permitAll()
+                        .requestMatchers("/api/health", "/api/v1/health", "/actuator/**").permitAll()
                         .requestMatchers(
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",

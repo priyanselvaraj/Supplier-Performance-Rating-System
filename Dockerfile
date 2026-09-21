@@ -36,13 +36,13 @@ USER spruser
 # Expose Spring Boot default application port
 EXPOSE 8080
 
-# Configure container healthcheck via Spring Boot Actuator
+# Configure container healthcheck via Spring Boot Actuator using dynamic PORT
 HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
-  CMD curl -f http://localhost:8080/actuator/health || exit 1
+  CMD curl -f http://localhost:${PORT:-8080}/actuator/health || exit 1
 
 # Environment variable defaults
 ENV SPRING_PROFILES_ACTIVE=prod \
-    SERVER_PORT=8080 \
     JAVA_OPTS="-Xms256m -Xmx512m"
 
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -Dserver.port=${PORT:-8080} -jar app.jar"]
+
