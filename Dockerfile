@@ -1,12 +1,13 @@
 # ==========================================
 # STAGE 1: Build JAR using Maven
+# (Docker Build Context = backend/ directory)
 # ==========================================
 FROM maven:3.9-eclipse-temurin-21 AS builder
 
 WORKDIR /app
 
-# Copy entire backend directory into build context
-COPY backend/ .
+# Copy all files from the build context (backend/ directory)
+COPY . .
 
 # Build production package
 RUN mvn clean package -DskipTests
