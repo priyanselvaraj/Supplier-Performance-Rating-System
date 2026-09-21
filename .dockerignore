@@ -1,0 +1,12 @@
+backend/target/
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+.git/
+.github/
+.vscode/
+*.log
+*.iml
+.idea/
+deploy/
+docs/

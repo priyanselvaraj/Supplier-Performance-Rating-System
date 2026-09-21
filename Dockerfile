@@ -5,9 +5,8 @@ FROM maven:3.9-eclipse-temurin-21 AS builder
 
 WORKDIR /app
 
-# Copy backend pom.xml and source from monorepo
-COPY backend/pom.xml .
-COPY backend/src ./src
+# Copy entire backend directory into build context
+COPY backend/ .
 
 # Build production package
 RUN mvn clean package -DskipTests
