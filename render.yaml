@@ -1,5 +1,5 @@
-﻿services:
-  # 1. Spring Boot Backend Web Service
+services:
+  # 1. Spring Boot Backend Web Service (Docker)
   - type: web
     name: sprs-backend
     runtime: docker
@@ -13,36 +13,41 @@
         value: prod
       - key: PORT
         value: 8080
+
+      # --- Aiven MySQL Connection ---
       - key: DB_HOST
-        value: your-mysql-host.example.com
+        sync: false          # Set manually in Render dashboard after Aiven is ready
       - key: DB_PORT
-        value: 3306
+        sync: false
       - key: DB_NAME
         value: supplier_rating_db
       - key: DB_USERNAME
-        value: root
+        sync: false
       - key: DB_PASSWORD
-        value: RootSecret@2026
-      - key: JWT_SECRET
-        generateValue: true
-      - key: JWT_EXPIRATION_MS
-        value: 86400000
-      - key: ALLOWED_ORIGINS
-        value: "*"
+        sync: false
+      - key: DB_USE_SSL
+        value: "true"        # Aiven requires SSL
+      - key: DB_ALLOW_PUBLIC_KEY_RETRIEVAL
+        value: "true"
+      - key: HIBERNATE_DDL_AUTO
+        value: update        # Auto-creates tables on first boot
 
-  # 2. React Frontend Static Site
-  - type: web
-    name: sprs-frontend
-    runtime: static
-    buildCommand: npm install && npm run build
-    staticPublishPath: dist
-    rootDir: frontend
-    plan: free
-    region: oregon
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
-    envVars:
-      - key: VITE_API_URL
-        value: https://sprs-backend.onrender.com/api/v1
+      # --- Security ---
+      - key: JWT_SECRET
+        generateValue: true  # Render auto-generates a secure random value
+      - key: JWT_EXPIRATION_MS
+        value: "86400000"    # 24 hours
+
+      # --- CORS (update with your Vercel URL after frontend deploy) ---
+      - key: ALLOWED_ORIGINS
+        value: "https://sprs-frontend.vercel.app,http://localhost:5173"
+
+      # --- Seed data on first boot ---
+      - key: APP_SEED_ENABLED
+        value: "true"
+
+      # --- Mail (disabled by default; enable with Gmail SMTP if needed) ---
+      - key: MAIL_ENABLED
+        value: "false"
+      - key: MAIL_SIMULATION_MODE
+        value: "true"
