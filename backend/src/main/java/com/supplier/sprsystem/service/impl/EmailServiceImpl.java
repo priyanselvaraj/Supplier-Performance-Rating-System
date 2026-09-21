@@ -95,7 +95,7 @@ public class EmailServiceImpl implements EmailService {
     public void sendWelcomeEmail(User user) {
         if (user == null || user.getEmail() == null) return;
 
-        String subject = "🎉 Welcome to SPRS - Supplier Performance Rating System";
+        String subject = "Welcome to SPRS";
         String fullName = user.getFullName() != null ? user.getFullName() : user.getUsername();
         String roleText = user.getRoles() != null && !user.getRoles().isEmpty()
                 ? user.getRoles().iterator().next().getName().name().replace("ROLE_", "")
@@ -262,7 +262,7 @@ public class EmailServiceImpl implements EmailService {
         if (user == null || user.getEmail() == null) return;
 
         String typeName = type != null ? type.getDisplayName() : "Notification";
-        String subject = "[SPRS " + typeName + "] " + title;
+        String subject = "SPRS Notification: " + title;
         String fullName = user.getFullName() != null ? user.getFullName() : user.getUsername();
 
         String html = """
