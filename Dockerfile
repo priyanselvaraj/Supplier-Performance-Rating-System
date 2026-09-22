@@ -6,10 +6,10 @@ FROM maven:3.9-eclipse-temurin-21 AS builder
 
 WORKDIR /app
 
-# Copy all files from the build context (backend/ directory)
+# Copy backend source from build context
 COPY . .
 
-# Build production package
+# Build production package without tests
 RUN mvn clean package -DskipTests
 
 # ==========================================
@@ -19,30 +19,22 @@ FROM eclipse-temurin:21-jre-alpine
 
 WORKDIR /app
 
-# Install curl for container health check
-RUN apk add --no-cache curl
-
-# Create non-root system user for secure container execution
+# Create non-root system user for security
 RUN addgroup -S sprgroup && adduser -S spruser -G sprgroup
 
 # Copy generated JAR from builder stage
 COPY --from=builder /app/target/sprsystem-*.jar app.jar
 
-# Set container ownership to non-root user
+# Set container ownership
 RUN chown -R spruser:sprgroup /app
 
 USER spruser
 
-# Expose Spring Boot default application port
+# Expose port (8080 default, overridden by $PORT on Render)
 EXPOSE 8080
 
-# Configure container healthcheck via Spring Boot Actuator using dynamic PORT
-HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
-  CMD curl -f http://localhost:${PORT:-8080}/actuator/health || exit 1
-
-# Environment variable defaults
+# Environment variable defaults & fast startup JVM flags
 ENV SPRING_PROFILES_ACTIVE=prod \
-    JAVA_OPTS="-Xms256m -Xmx512m"
+    JAVA_OPTS="-Xms128m -Xmx384m -XX:+UseSerialGC -Djava.security.egd=file:/dev/./urandom"
 
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -Dserver.port=${PORT:-8080} -jar app.jar"]
-
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -Dserver.address=0.0.0.0 -Dserver.port=${PORT:-8080} -jar app.jar"]
