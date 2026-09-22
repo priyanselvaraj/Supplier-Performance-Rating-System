@@ -119,11 +119,8 @@ public class SecurityConfig {
                                 "/error"
                         ).permitAll()
 
-                        // Role-based Endpoints
-                        .requestMatchers("/api/v1/users/**").hasRole("ADMIN")
-
-                        // Integration Admin Management (Phase 16)
-                        .requestMatchers("/api/v1/admin/integrations/**").hasRole("ADMIN")
+                        // Admin Management (Users, Integrations, Data Seeding)
+                        .requestMatchers("/api/v1/users/**", "/api/v1/admin/**").hasRole("ADMIN")
 
                         // External API Endpoints (Phase 16 - Secured via API Key scopes or Admin/Manager role)
                         .requestMatchers("/api/v1/external/**").authenticated()

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { supplierService } from '../../services/supplier.service';
 import { categoryService } from '../../services/category.service';
+import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { Card } from '../../components/common/Card';
 import { Badge } from '../../components/common/Badge';
@@ -18,7 +19,8 @@ import {
   CheckSquare,
   ChevronLeft,
   ChevronRight,
-  ArrowUpDown
+  ArrowUpDown,
+  Database
 } from 'lucide-react';
 
 export const SupplierList = () => {
@@ -81,6 +83,22 @@ export const SupplierList = () => {
       setLoading(false);
     }
   }, [keyword, categoryId, status, ratingCategory, sortBy, sortDirection, page, pageSize]);
+
+  const handleSeedData = async () => {
+    setLoading(true);
+    try {
+      const res = await api.post('/admin/seed/sample-data');
+      if (res.data?.success) {
+        setToast({ message: 'Enterprise sample data loaded successfully!', type: 'success' });
+        await fetchCategories();
+        await fetchSuppliers();
+      }
+    } catch (err) {
+      setToast({ message: 'Failed to seed sample data: ' + (err.response?.data?.message || err.message), type: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchCategories();
@@ -269,9 +287,22 @@ export const SupplierList = () => {
             Manage organization vendor profiles, track evaluations, and monitor performance tiers. Click table column headers to sort.
           </p>
         </div>
-        <Button variant="primary" icon={PlusCircle} onClick={handleOpenAddModal}>
-          Add Supplier
-        </Button>
+        <div className="flex items-center gap-3">
+          {isAdmin && (
+            <Button
+              variant="outline"
+              icon={Database}
+              onClick={handleSeedData}
+              loading={loading}
+              className="border-blue-200 text-blue-700 hover:bg-blue-50"
+            >
+              Load Sample Data
+            </Button>
+          )}
+          <Button variant="primary" icon={PlusCircle} onClick={handleOpenAddModal}>
+            Add Supplier
+          </Button>
+        </div>
       </div>
 
       {/* Filter & Sort Bar */}

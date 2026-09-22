@@ -105,13 +105,29 @@ public class DataInitializer implements CommandLineRunner {
         initDefaultCriteria();
         initDefaultWorkflowDefinitions();
         initDefaultKpiDefinitions();
-        if (seedEnabled) {
+        if (seedEnabled || supplierRepository.count() == 0) {
             initSampleSuppliersAndEvaluations();
             initSupplierPortalData();
             initSampleWorkflowInstances();
             initSampleSavedReports();
             initSampleIntegrations();
         }
+    }
+
+    @Transactional
+    public void forceSeedSampleData() {
+        initRoles();
+        initDefaultUsers();
+        initDefaultCategories();
+        initDefaultCriteria();
+        initDefaultWorkflowDefinitions();
+        initDefaultKpiDefinitions();
+        initSampleSuppliersAndEvaluations();
+        initSupplierPortalData();
+        initSampleWorkflowInstances();
+        initSampleSavedReports();
+        initSampleIntegrations();
+        logger.info("forceSeedSampleData executed successfully.");
     }
 
     private void initRoles() {
@@ -260,8 +276,12 @@ public class DataInitializer implements CommandLineRunner {
 
     private void initSampleSuppliersAndEvaluations() {
         if (supplierRepository.count() == 0) {
+            initDefaultCategories();
             List<SupplierCategory> categories = categoryRepository.findAll();
-            if (categories.isEmpty()) return;
+            if (categories.isEmpty()) {
+                logger.warn("No categories available to seed suppliers.");
+                return;
+            }
 
             SupplierCategory catElec = categories.stream().filter(c -> "CAT-ELEC".equals(c.getCode())).findFirst().orElse(categories.get(0));
             SupplierCategory catLog = categories.stream().filter(c -> "CAT-LOG".equals(c.getCode())).findFirst().orElse(categories.get(0));

@@ -5,7 +5,7 @@ import { Button } from '../../components/common/Button';
 import { categoryService } from '../../services/category.service';
 import { supplierService } from '../../services/supplier.service';
 
-export const SupplierFormModal = ({ isOpen, onClose, supplier, onSuccess }) => {
+export const SupplierFormModal = ({ isOpen, onClose, supplier, onSuccess, onSaved }) => {
   const [categories, setCategories] = useState([]);
   const [formData, setFormData] = useState({
     supplierCode: '',
@@ -65,17 +65,12 @@ export const SupplierFormModal = ({ isOpen, onClose, supplier, onSuccess }) => {
   }, [isOpen, supplier]);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    if (error) setError('');
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.email || !formData.categoryId) {
-      setError('Name, email, and category are required');
-      return;
-    }
-
     setLoading(true);
     setError('');
 
@@ -85,7 +80,8 @@ export const SupplierFormModal = ({ isOpen, onClose, supplier, onSuccess }) => {
       } else {
         await supplierService.createSupplier(formData);
       }
-      onSuccess();
+      if (typeof onSuccess === 'function') onSuccess();
+      if (typeof onSaved === 'function') onSaved();
       onClose();
     } catch (err) {
       const msg = err.response?.data?.message || err.message || 'Operation failed';

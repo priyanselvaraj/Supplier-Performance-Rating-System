@@ -61,7 +61,7 @@ app:
   cors:
     allowed-origins: ${ALLOWED_ORIGINS:https://sprs-priyan.vercel.app,https://*.vercel.app,http://localhost:5173,http://localhost:80,http://localhost}
   seed:
-    enabled: ${APP_SEED_ENABLED:false}
+    enabled: ${APP_SEED_ENABLED:true}
   mail:
     enabled: ${MAIL_ENABLED:true}
     from: ${MAIL_FROM:${MAIL_USERNAME:noreply@sprsystem.com}}
